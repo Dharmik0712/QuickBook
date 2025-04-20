@@ -1,10 +1,10 @@
 QuickBook
-QuickBook is a web-based healthcare appointment booking system that connects patients with doctors. It allows users to register, book appointments, manage prescriptions, and raise queries, with a user-friendly interface powered by Flask (Python) and jQuery (JavaScript).
+QuickBook is a web-based healthcare appointment booking system that connects patients with doctors. It enables patients to register, book appointments, manage prescriptions, and raise queries, while doctors can manage appointments and patient interactions. Built with Flask (Python), JavaScript (jQuery), and PostgreSQL, QuickBook ensures a fast, intuitive, and reliable experience.
 Features
 
 User Registration: Patients and doctors can register with personal details.
 Appointment Booking: Book, cancel, or reschedule appointments with doctors.
-Prescription Management: Doctors can upload prescriptions; patients can download them.
+Prescription Management: Doctors can upload and update prescriptions; patients can download them.
 Query System: Patients can raise queries about appointments.
 Doctor Dashboard: View and manage appointments and patient details.
 Responsive UI: Built with Bootstrap and jQuery for a seamless experience.
@@ -13,22 +13,22 @@ Tech Stack
 
 Backend: Flask (Python)
 Frontend: HTML, CSS, JavaScript (jQuery, Bootstrap)
-Database: MySQL
+Database: PostgreSQL
 Deployment: Render or AWS Elastic Beanstalk
 Other: Moment.js for date/time handling
 
 Prerequisites
 
 Python 3.8+
-MySQL 8.0+
+PostgreSQL 13+
 Git
 Render or AWS account for deployment
 
 Installation
 
 Clone the Repository
-git clone https://github.com/your-username/QuickBook.git
-cd QuickBook
+git clone https://github.com/your-username/quickbook.git
+cd quickbook
 
 
 Set Up a Virtual Environment
@@ -41,16 +41,16 @@ pip install -r requirements.txt
 
 
 Configure Environment VariablesCreate a .env file in the project root:
-DATABASE_URL=mysql+mysqlconnector://user:password@localhost/QuickBook
+DATABASE_URL=postgresql://user:password@localhost:5432/quickbook
 FLASK_ENV=development
 SECRET_KEY=your-secret-key
 
 
 Set Up the Database
 
-Create a MySQL database named QuickBook.
+Create a PostgreSQL database named quickbook.
 Run the schema setup (e.g., from database.py or a provided SQL script).
-Update DATABASE_URL with your MySQL credentials.
+Update DATABASE_URL with your PostgreSQL credentials.
 
 
 Run the Application Locally
@@ -66,59 +66,59 @@ Create a Render AccountSign up at Render and create a new Web Service.
 
 Connect GitHub Repository
 
-Link your GitHub repository (QuickBook) to Render.
+Link your GitHub repository (quickbook) to Render.
 Select the repository and branch (e.g., main).
 
 
 Configure the Web Service
 
+Region: Select Frankfurt (EU) for proximity to the UK.
 Runtime: Python
 Build Command: pip install -r requirements.txt
 Start Command: gunicorn --bind 0.0.0.0:$PORT app:app
 Environment Variables:
-DATABASE_URL: Your MySQL database URL (e.g., hosted on Render or another provider).
+DATABASE_URL: Your PostgreSQL database URL (e.g., Render’s PostgreSQL or external).
 FLASK_ENV: production
 SECRET_KEY: A secure random string.
 
 
-Add a Render-managed MySQL database if needed (Render provides this option).
+Add a Render-managed PostgreSQL database (select Frankfurt region).
 
 
 Deploy
 
 Click Create Web Service. Render will build and deploy your app.
-Access the app at the provided URL (e.g., https://QuickBook.onrender.com).
+Access the app at the provided URL (e.g., https://quickbook.onrender.com).
 
 
 
 Deploying on AWS Elastic Beanstalk
 
-Set Up AWS AccountCreate an AWS account and install the AWS CLI (awscli).
+Set Up AWS AccountCreate an AWS account and install the AWS CLI (awscli) and EB CLI (awsebcli).
 
 Initialize Elastic Beanstalk
-eb init -p python-3.8 QuickBook --region us-east-1
+eb init -p python-3.8 quickbook --region eu-west-2
 
-Select Python 3.8 and your AWS region.
+Select Python 3.8 and the London (eu-west-2) region.
 
 Configure EnvironmentCreate a .ebextensions/options.config file:
 option_settings:
   aws:elasticbeanstalk:environment:process:default:
     Port: 8000
   aws:elasticbeanstalk:application:environment:
-    DATABASE_URL: "mysql+mysqlconnector://user:password@host/QuickBook"
+    DATABASE_URL: "postgresql://user:password@host:5432/quickbook"
     FLASK_ENV: "production"
     SECRET_KEY: "your-secret-key"
 
 
 Deploy
-eb create QuickBook-env
+eb create quickbook-env
 eb deploy
 
-Access the app at the provided Elastic Beanstalk URL.
 
-Set Up RDS (MySQL)
+Set Up RDS (PostgreSQL)
 
-Create an RDS MySQL instance in AWS.
+Create an RDS PostgreSQL instance in eu-west-2.
 Update DATABASE_URL in .ebextensions/options.config with RDS credentials.
 
 
@@ -134,4 +134,4 @@ Open a Pull Request.
 License
 This project is licensed under the MIT License. See the LICENSE file for details.
 Contact
-For issues or questions, open an issue on GitHub or contact dharmiksompura1212@gmail.com .
+For issues or questions, open an issue on GitHub or contact dharmiksompura1212@gmail.com.
