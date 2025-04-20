@@ -1,1 +1,1 @@
-web: gunicorn smaranvaidhya_Frontend.app:app
+web: gunicorn --bind 0.0.0.0:$PORT app:application
