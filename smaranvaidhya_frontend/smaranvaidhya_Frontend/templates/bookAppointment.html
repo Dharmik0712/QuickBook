@@ -1,0 +1,40 @@
+{% extends 'Header.html' %}
+{% include 'includes/applicationHeaderPage.html' %}
+
+{% block content %}
+<div id="maincomponent" style="margin-top: 30px;">
+    <div class="search-container mb-6 flex justify-center">
+        <input 
+            type="text" 
+            id="doctorSearch" 
+            placeholder="Search by doctor name, city, clinic, qualification, or experience..."
+            style="
+                width: 100%; 
+                max-width: 500px; 
+                padding: 10px 10px 10px 40px; 
+                font-size: 14px; 
+                border: 1px solid #d1d5db; 
+                border-radius: 8px; 
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+                background: url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;16&quot; height=&quot;16&quot; fill=&quot;gray&quot; viewBox=&quot;0 0 16 16&quot;><path d=&quot;M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z&quot;/></svg>') no-repeat 10px center; 
+                background-size: 16px; 
+                transition: border-color 0.2s, box-shadow 0.2s; 
+                outline: none;
+                margin-left: 35%;
+                margin-down: 20px;
+            "
+            onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.3)';"
+            onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';"
+        />
+    </div>
+
+    <div id="doctorResults"></div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        register_login_events();
+        get_doctor_data();
+    });
+</script>
+{% endblock %}

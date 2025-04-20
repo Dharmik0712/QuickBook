@@ -1,0 +1,362 @@
+{% extends 'Header.html' %}
+{% include 'includes/applicationHeaderPage.html' %}
+
+{% block content %}
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+</head>
+<div class="main-content p-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">Welcome, Dr. {{ session['email'] }}</h1>
+    <div id="doctorProfileSection" class="bg-gray-50 p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-semibold text-teal-700 mb-6">Doctor Profile</h2>
+        <form id="doctorProfileForm">
+            <!-- Personal Info Section -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Personal Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="doctor_id" class="block font-bold text-gray-600">Doctor ID</label>
+                        <input type="text" id="doctor_id" name="doctor_id" readonly class="w-full p-2 border rounded bg-gray-100">
+                    </div>
+                    <div>
+                        <label for="email" class="block font-bold text-gray-600">Email</label>
+                        <input type="email" id="email" name="email" readonly class="w-full p-2 border rounded bg-gray-100">
+                    </div>
+                    <div>
+                        <label for="first_name" class="block font-bold text-gray-600">First Name</label>
+                        <input type="text" id="first_name" name="first_name" required disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="last_name" class="block font-bold text-gray-600">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" required disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="date_of_birth" class="block font-bold text-gray-600">Date of Birth</label>
+                        <input type="text" id="date_of_birth" name="date_of_birth" readonly class="w-full p-2 border rounded bg-gray-100">
+                    </div>
+                    <div>
+                        <label for="gender" class="block font-bold text-gray-600">Gender</label>
+                        <input type="text" id="gender" name="gender" readonly class="w-full p-2 border rounded bg-gray-100">
+                    </div>
+                    <div>
+                        <label for="phone_number" class="block font-bold text-gray-600">Phone Number</label>
+                        <input type="tel" id="phone_number" name="phone_number" required disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="state" class="block font-bold text-gray-600">State</label>
+                        <input type="text" id="state" name="state" required disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="city" class="block font-bold text-gray-600">City</label>
+                        <input type="text" id="city" name="city" required disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="zip_code" class="block font-bold text-gray-600">Zip Code</label>
+                        <input type="text" id="zip_code" name="zip_code" required disabled class="w-full p-2 border rounded">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Availability Info Section -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Availability Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="available_days" class="block font-bold text-gray-600">Available Days</label>
+                        <div id="available_days" class="w-full p-2 border rounded bg-gray-100"></div>
+                        <div class="mt-2 hidden" id="available_days_edit">
+                            <label><input type="checkbox" name="available_days" value="monday" disabled> Monday</label>
+                            <label><input type="checkbox" name="available_days" value="tuesday" disabled> Tuesday</label>
+                            <label><input type="checkbox" name="available_days" value="wednesday" disabled> Wednesday</label>
+                            <label><input type="checkbox" name="available_days" value="thursday" disabled> Thursday</label>
+                            <label><input type="checkbox" name="available_days" value="friday" disabled> Friday</label>
+                            <label><input type="checkbox" name="available_days" value="saturday" disabled> Saturday</label>
+                            <label><input type="checkbox" name="available_days" value="sunday" disabled> Sunday</label>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="available_from" class="block font-bold text-gray-600">Available From</label>
+                        <input type="time" id="available_from" name="available_from" disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="available_to" class="block font-bold text-gray-600">Available To</label>
+                        <input type="time" id="available_to" name="available_to" disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="time_per_patient" class="block font-bold text-gray-600">Time Per Patient (minutes)</label>
+                        <input type="number" id="time_per_patient" name="time_per_patient" disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="max_appointments" class="block font-bold text-gray-600">Max Appointments/Day</label>
+                        <input type="number" id="max_appointments" name="max_appointments" disabled class="w-full p-2 border rounded">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Qualification Info Section -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Qualification Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="specialist" class="block font-bold text-gray-600">Specialization</label>
+                        <input type="text" id="specialist" name="specialist" disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="highest_qualification" class="block font-bold text-gray-600">Highest Qualification</label>
+                        <input type="text" id="highest_qualification" name="highest_qualification" disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="years_of_experience" class="block font-bold text-gray-600">Years of Experience</label>
+                        <input type="number" id="years_of_experience" name="years_of_experience" disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="clinic_hospital" class="block font-bold text-gray-600">Clinic/Hospital</label>
+                        <select id="clinic_hospital" name="clinic_hospital" disabled class="w-full p-2 border rounded">
+                            <option value="clinic">Clinic</option>
+                            <option value="hospital">Hospital</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consultation Info Section -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-700 mb-4">Consultation Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="in_person_fee" class="block font-bold text-gray-600">In-Person Fee (₹)</label>
+                        <input type="number" id="in_person_fee" name="in_person_fee" disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="video_fee" class="block font-bold text-gray-600">Video Fee (₹)</label>
+                        <input type="number" id="video_fee" name="video_fee" disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="phone_fee" class="block font-bold text-gray-600">Phone Fee (₹)</label>
+                        <input type="number" id="phone_fee" name="phone_fee" disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="emergency_availability" class="block font-bold text-gray-600">Emergency Availability</label>
+                        <select id="emergency_availability" name="emergency_availability" disabled class="w-full p-2 border rounded">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="emergency_contact" class="block font-bold text-gray-600">Emergency Contact</label>
+                        <input type="text" id="emergency_contact" name="emergency_contact" disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="hospital_clinic_address" class="block font-bold text-gray-600">Hospital/Clinic Address Link</label>
+                        <input type="url" id="hospital_clinic_address" name="hospital_clinic_address" disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="upi_id" class="block font-bold text-gray-600">UPI ID</label>
+                        <input type="text" id="upi_id" name="upi_id" disabled class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label for="doctor_image" class="block font-bold text-gray-600">Doctor Image</label>
+                        <input type="file" id="doctor_image" name="doctor_image" disabled class="w-full p-2 border rounded">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Button Group -->
+            <div class="button-group flex gap-4">
+                <button type="button" class="edit-btn bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onclick="enableEditing()">Edit</button>
+                <button type="button" class="save-btn bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden" onclick="update_doctor_profile()">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Internal CSS -->
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+
+    .main-content {
+        margin: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    #doctorProfileSection {
+        background-color: #f9f9f9;
+        border-radius: 8px;
+    }
+
+    input, select {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    input[readonly], select[disabled] {
+        background-color: #e9ecef;
+    }
+
+    .button-group {
+        margin-top: 20px;
+    }
+
+    #available_days_edit label {
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            margin: 10px;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        register_login_events();
+        get_doctor_profile();
+    });
+
+    function enableEditing() {
+        $("#doctorProfileForm input:not([readonly]), #doctorProfileForm select").prop("disabled", false);
+        $("#available_days").addClass("hidden");
+        $("#available_days_edit").removeClass("hidden");
+        $("#available_days_edit input").prop("disabled", false);
+        $(".edit-btn").addClass("hidden");
+        $(".save-btn").removeClass("hidden");
+    }
+
+    function get_doctor_profile() {
+        var email = "{{ session['email'] | e }}";
+        if (!email) {
+            console.error("No email found for doctor profile request");
+            alert("Failed to load profile: User not authenticated");
+            return;
+        }
+        $.ajax({
+            url: `/get_doctor_profile?email=${encodeURIComponent(email)}`,
+            type: 'GET',
+            contentType: 'application/json',
+            success: function(data) {
+                console.log("Doctor profile data:", data);
+                populate_doctor_profile(data);
+            },
+            error: function(jqXhr, textStatus, errorMsg) {
+                console.error("Error fetching doctor profile:", {
+                    status: jqXhr.status,
+                    statusText: jqXhr.statusText,
+                    responseText: jqXhr.responseText,
+                    textStatus: textStatus,
+                    errorMsg: errorMsg
+                });
+                let errorDetail = jqXhr.responseJSON?.detail || errorMsg || "Unknown error";
+                alert("Failed to load profile: " + errorDetail);
+            }
+        });
+    }
+
+    function populate_doctor_profile(data) {
+        $("#doctor_id").val(data.id || '');
+        $("#first_name").val(data.first_name || '');
+        $("#last_name").val(data.last_name || '');
+        $("#date_of_birth").val(data.date_of_birth || '');
+        $("#gender").val(data.gender || '');
+        $("#email").val(data.email || '');
+        $("#phone_number").val(data.phone_number || '');
+        $("#state").val(data.state || '');
+        $("#city").val(data.city || '');
+        $("#zip_code").val(data.zip_code || '');
+        $("#clinic_hospital").val(data.clinic_hospital || '');
+        $("#specialist").val(data.specialist || '');
+        $("#available_from").val(data.available_from || '');
+        $("#available_to").val(data.available_to || '');
+        $("#time_per_patient").val(data.time_per_patient || '');
+        $("#max_appointments").val(data.max_appointments || '');
+        $("#highest_qualification").val(data.highest_qualification || '');
+        $("#years_of_experience").val(data.years_of_experience || '');
+        $("#in_person_fee").val(data.in_person_fee || '');
+        $("#video_fee").val(data.video_fee || '');
+        $("#phone_fee").val(data.phone_fee || '');
+        $("#emergency_availability").val(data.emergency_availability || '');
+        $("#emergency_contact").val(data.emergency_contact || '');
+        $("#hospital_clinic_address").val(data.hospital_clinic_address || '');
+        $("#upi_id").val(data.upi_id || '');
+        $("#doctor_image").val(data.doctor_image ? data.doctor_image.split('/').pop() : '');
+        
+        var days = data.available_days ? data.available_days.split(',') : [];
+        $("#available_days").text(days.join(', ') || 'None');
+        days.forEach(function(day) {
+            $(`#available_days_edit input[value="${day}"]`).prop('checked', true);
+        });
+    }
+
+    function update_doctor_profile() {
+        var doctor_id = $("#doctor_id").val();
+        if (!doctor_id) {
+            alert("Doctor ID is missing!");
+            return;
+        }
+
+        var available_days = [];
+        $("#available_days_edit input:checked").each(function() {
+            available_days.push($(this).val());
+        });
+
+        var request_data = {
+            first_name: $("#first_name").val().trim(),
+            last_name: $("#last_name").val().trim(),
+            phone_number: $("#phone_number").val().trim(),
+            state: $("#state").val().trim(),
+            city: $("#city").val().trim(),
+            zip_code: $("#zip_code").val().trim(),
+            clinic_hospital: $("#clinic_hospital").val(),
+            specialist: $("#specialist").val().trim(),
+            available_days: available_days.join(','),
+            available_from: $("#available_from").val(),
+            available_to: $("#available_to").val(),
+            time_per_patient: parseInt($("#time_per_patient").val()) || 0,
+            max_appointments: parseInt($("#max_appointments").val()) || 0,
+            highest_qualification: $("#highest_qualification").val().trim(),
+            years_of_experience: parseInt($("#years_of_experience").val()) || 0,
+            in_person_fee: parseInt($("#in_person_fee").val()) || 0,
+            video_fee: parseInt($("#video_fee").val()) || 0,
+            phone_fee: parseInt($("#phone_fee").val()) || 0,
+            emergency_availability: $("#emergency_availability").val(),
+            emergency_contact: $("#emergency_contact").val().trim(),
+            hospital_clinic_address: $("#hospital_clinic_address").val().trim(),
+            upi_id: $("#upi_id").val().trim()
+        };
+
+        console.log("Updating doctor profile:", request_data);
+
+        $.ajax({
+            url: `/update_doctor_profile/${doctor_id}`,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(request_data),
+            dataType: 'json',
+            success: function(response) {
+                console.log("Update response:", response);
+                alert("Profile updated successfully!");
+                window.location.reload();
+            },
+            error: function(jqXhr, textStatus, errorMsg) {
+                console.error("Update error:", textStatus, errorMsg, jqXhr.responseText);
+                alert("Failed to update profile: " + (jqXhr.responseJSON?.detail || errorMsg));
+            }
+        });
+    }
+</script>
+{% endblock %}

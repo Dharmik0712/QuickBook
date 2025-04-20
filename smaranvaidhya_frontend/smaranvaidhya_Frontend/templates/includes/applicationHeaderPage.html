@@ -1,0 +1,38 @@
+<div class="solutionHeaderProp row">
+    <div class="univIconProp">
+        <img src="{{ url_for('static', filename='images/smaranvaidhyaLogo.png') }}" alt="SmaranVaidhya Logo" class="logo">
+        <span class="univTitle">QuickBook</span>
+    </div>
+    
+    <div class="menuAreadProp row">
+        {% if session['user_type'] == 'patient' %}
+            <a href="{{ url_for('Homepage') }}" class="anchorProp">Home</a>
+            <a href="{{ url_for('userProfile') }}" class="anchorProp">Profile</a>
+            <a href="{{ url_for('patientHistory') }}" class="anchorProp">Patient History</a>
+            <a href="{{ url_for('bookAppointment') }}" class="anchorProp">Book Appointment</a>
+            <a href="{{ url_for('aboutPage') }}" class="anchorProp">About Us</a>
+            <a href="{{ url_for('contactUsPage') }}" class="anchorProp">Contact Us</a>
+            <a href="{{ url_for('raiseQuery') }}" class="anchorProp">Raise a Query</a>
+        {% elif session['user_type'] == 'doctor' %}
+            <a href="{{ url_for('Homepage') }}" class="anchorProp">Home</a>
+            <a href="{{ url_for('doctorsView') }}" class="anchorProp">Doctor's View</a>
+            <a href="{{ url_for('doctorProfile') }}" class="anchorProp">Doctor's Profile</a>
+            <a href="{{ url_for('aboutPage') }}" class="anchorProp">About Us</a>
+            <a href="{{ url_for('contactUsPage') }}" class="anchorProp">Contact Us</a>
+            <a href="{{ url_for('raiseQuery') }}" class="anchorProp">Raise a Query</a>
+        {% elif session['user_type'] == 'admin' %}
+            <a href="{{ url_for('adminQueries') }}" class="anchorProp">Admin Query View</a>
+            <a href="{{ url_for('bookAppointment') }}" class="anchorProp">Book Appointment</a>
+            <a href="{{ url_for('confirmBooking') }}" class="anchorProp">Confirm Booking</a>
+            <a href="{{ url_for('doctorsInfo') }}" class="anchorProp">Doctor's Info</a>
+        {% endif %}
+        {% if session['user_type'] == None %}
+            <a href="{{ url_for('Homepage') }}" class="anchorProp">Home</a>
+            <a href="{{ url_for('aboutPage') }}" class="anchorProp">About Us</a>
+            <a href="{{ url_for('contactUsPage') }}" class="anchorProp">Contact Us</a>
+            <a href="{{ url_for('patientLoginPage') }}" class="anchorProp">Register/Login</a>
+        {% else %}
+            <a href="{{ url_for('logout') }}" class="anchorProp">Logout</a>
+        {% endif %}
+    </div>
+</div>

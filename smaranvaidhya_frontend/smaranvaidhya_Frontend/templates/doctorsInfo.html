@@ -1,0 +1,213 @@
+{% extends 'Header.html' %}
+{% include 'includes/applicationHeaderPage.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Information - Admin Panel</title>
+</head>
+<body>
+    <div id="doctorRegistrationTabContainer" class="container">
+        <label class="registrationLabel col-sm-12 row inputrow" style="justify-content: center">Doctor Registration</label>
+        <div class="col-sm-12 row inputrow">
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label class="registrationLabel">First Name: </label>
+                <input type="text" id="doctorFirstName" class="doctorinputprop" placeholder="Enter your first name">
+            </div>
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label class="registrationLabel">Last Name: </label>
+                <input type="text" id="doctorLastName" class="doctorinputprop" placeholder="Enter your last name">
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow">
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label class="registrationLabel">Date Of Birth: </label>
+                <input type="date" id="dobDate" placeholder="Select your date of birth">
+            </div>
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label class="registrationLabel">Gender: </label>
+                <select id="gender" name="gender" >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>           
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow">
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label class="registrationLabel">E-Mail Id: </label>
+                <input type="text" id="doctorEmailId" class="doctorinputprop" placeholder="Enter your email address">
+            </div>
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label class="registrationLabel">Mobile No: </label>
+                <input type="text" id="doctorPhoneNumber" class="doctorinputprop" placeholder="Enter your mobile number">
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow">
+            <div class="row col-sm-4" id="stateContainer">
+                <label class="registrationLabel" style="margin-left: 60px;">State: </label>
+                <input type="text" id="state" style="margin-left: 60px;" placeholder="Enter your state">
+            </div>
+            <div class="row col-sm-4" id="cityContainer">
+                <label class="registrationLabel" style="margin-left: 30px;">City: </label>
+                <input type="text" id="city" style="margin-left: 30px;" placeholder="Enter your city">
+            </div>
+            <div class="row col-sm-4" id="zipCodeContainer">
+                <label class="registrationLabel" style="margin-left: 30px;">Zip Code: </label>
+                <input type="text" id="zipCode" style="margin-left: 30px;" placeholder="Enter your zip code">
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow">
+            <div class="col-sm-5 row mx-3">
+                <label for="clinic-hospital">Clinic/Hospital:</label>
+                <select id="clinic-hospital" name="clinic_hospital" >
+                    <option value="clinic">Clinic</option>
+                    <option value="hospital">Hospital</option>
+                </select>
+            </div>
+            <div class="row col-sm-5" id="specialistContainer">
+                <label for="specialist">Specialist:</label>
+                <input type="text" id="specialist" name="specialist" placeholder="Enter specialization" >
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow" style="margin-left:20px;">
+            <label for="available-days" style="margin-left:10px; font-size:15px;">Available Days: </label>
+                <div style="margin-left:10px;">
+                    <label for="monday">
+                        <input id="monday" type="checkbox" name="monday" value="monday"> Monday
+                    </label>
+                </div>
+                <div>
+                    <label for="tuesday">
+                        <input id="tuesday"  type="checkbox" name="tuesday" value="tuesday"> Tuesday
+                    </label>
+                </div>
+                <div>
+                    <label for="wednesday">
+                        <input id="wednesday" type="checkbox" name="wednesday" value="wednesday"> Wednesday
+                    </label>
+                </div>
+                <div>
+                    <label for="thursday">
+                        <input id="thursday"  type="checkbox" name="thursday" value="thursday"> Thursday
+                    </label>
+                </div>
+                <div>
+                    <label for="friday">
+                        <input id="friday" type="checkbox" name="friday" value="friday"> Friday
+                    </label>
+                </div>
+                <div>
+                    <label for="saturday">
+                        <input id="saturday" type="checkbox" name="saturday" value="saturday"> Saturday
+                    </label>
+                </div>
+                <div>
+                    <label for="sunday">
+                        <input id="sunday" type="checkbox" name="sunday" value="sunday"> Sunday
+                    </label>
+                </div>
+            </div>
+        <div class="col-sm-12 row inputrow">
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label for="available-from">Available From: </label>
+                <input type="time" id="available-from" class="doctorinputprop" >
+            </div>
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label for="available-to">Available To: </label>
+                <input type="time" id="available-to" class="doctorinputprop" >
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow">
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label for="time-per-patient">Time Per Patient (in minutes): </label>
+                <input type="number" id="time-per-patient" class="doctorinputprop" placeholder="Enter time in minutes" >
+            </div>
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label for="max-appointments">Maximum Appointments per Day:</label>
+                <input type="number" id="max-appointments" class="doctorinputprop" placeholder="Enter max appointments" >
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow">
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label for="highest-qualification">Highest Qualification:</label>
+                <input type="text" id="highest-qualification" class="doctorinputprop" placeholder="Enter your qualification" >
+            </div>
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label for="years-of-experience">Years of Experience:</label>
+                <input type="number" id="years-of-experience" class="doctorinputprop" placeholder="Enter your years of experience" >
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow">
+            <div class="col-sm-3 row" style="margin-left: 30px;">
+                <label for="in-person-fee">In-Person Consultation Fee (₹):</label>
+                <input type="number" id="in-person-fee" class="doctorinputprop" placeholder="Enter fee for in-person consultation" >
+            </div>
+            <div class="col-sm-3 row" style="margin-left: 30px;">
+                <label for="video-fee">Video Consultation Fee (₹):</label>
+                <input type="number" id="video-fee" class="doctorinputprop" placeholder="Enter fee for video consultation" >
+            </div>
+            <div class="col-sm-3 row" style="margin-left: 30px;">
+                <label for="phone-fee">Phone Consultation Fee (₹):</label>
+                <input type="number" id="phone-fee" class="doctorinputprop" placeholder="Enter fee for phone consultation" >
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow">
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label for="emergency-availability">Emergency Consultation Available:</label>
+                <select id="emergency-availability" name="emergency_availability" >
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label for="emergency-contact">Emergency Contact:</label>
+                <input type="text" id="emergency-contact" class="doctorinputprop" placeholder="Enter emergency contact number" >
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow">
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label for="doctor-image">Upload Doctor Image:</label>
+                <input type="file" id="doctor-image" name="doctor-image" accept="image/*" >
+            </div>
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label for="hospital-clinic-address">Hospital/Clinic Address Link:</label>
+                <input 
+                    type="url" id="hospital-clinic-address" name="hospital_clinic_address" class="doctorinputprop" placeholder="Enter Google Maps link to the address" >
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow">
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label for="upi_id">UPI ID:</label>
+                <input type="text" id="upi_id" class="doctorinputprop" placeholder="Enter your UPI ID" >
+            </div>
+        </div>
+        
+        <div>
+            <button id="doctorRegistrationSubmit">Submit</button>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    if (typeof jQuery === 'undefined') {
+            document.write('<script src="path/to/local/jquery-3.7.1.min.js"><\/script>');
+        }
+    var logged_in_user = {{ user_login | tojson }};
+    if (logged_in_user['patient']) {
+
+    } else {
+        //$('#doctorLoginPagePage').addClass('d-none')
+    } 
+    $(document).ready(function () {
+        register_login_events();
+        $("#dobDate").datepicker({
+            dateFormat: 'yy-mm-dd',
+            changeMonth: true,
+            changeYear: true
+        });
+    });
+</script>
+{% endblock %}

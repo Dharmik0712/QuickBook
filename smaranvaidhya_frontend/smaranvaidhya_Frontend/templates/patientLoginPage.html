@@ -1,0 +1,114 @@
+{% extends 'Header.html' %}
+{% include 'includes/applicationHeaderPage.html' %}
+
+{% block content %}
+<div class="maincomponent">
+    <ul id="tabs">
+        <li><a id="userRegistrationTab">Register</a></li>
+        <li><a id="userLoginTab" class="inactive">Login</a></li>
+    </ul>
+    <div id="userRegistrationTabContainer" class="container">
+        <label class="registrationLabel col-sm-12 row inputrow" style="justify-content: center"></label>
+        <div class="col-sm-12 row inputrow">
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label class="registrationLabel">First Name: </label>
+                <input type="text" id="userFirstName" class="userinputprop" placeholder="Enter your first name">
+            </div>
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label class="registrationLabel">Last Name: </label>
+                <input type="text" id="userLastName" class="userinputprop" placeholder="Enter your last name">
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow">
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label class="registrationLabel">Date Of Birth: </label>
+                <input type="date" id="dobDate" placeholder="Select your date of birth">
+            </div>
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label class="registrationLabel">Gender: </label>
+                <select id="clinic-hospital" name="clinic_hospital" required>
+                    <option value="clinic">Male</option>
+                    <option value="hospital">Female</option>
+                    <option value="hospital">Other</option>
+                </select>            
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow">
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label class="registrationLabel">E-Mail Id: </label>
+                <input type="text" id="userEmailId" class="userinputprop" placeholder="Enter your email address">
+            </div>
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label class="registrationLabel">Mobile No: </label>
+                <input type="text" id="userPhoneNumber" class="userinputprop" placeholder="Enter your mobile number">
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow">
+            <div id="studyYearCon" class="col-sm-5 row" style="margin-left: 30px;">
+                <label class="registrationLabel">Password: </label>
+                <input type="password" id="userPassword" class="userinputprop" placeholder="Enter your password">
+            </div>
+            <div class="col-sm-5 row" style="margin-left: 30px;">
+                <label class="registrationLabel">Confirm Password: </label>
+                <input type="password" id="userConfirmPassword" class="userinputprop" placeholder="Confirm your password">
+            </div>
+        </div>
+        <div class="col-sm-12 row inputrow">
+            <div class="row col-sm-4" id="dobDateContainer">
+                <label class="registrationLabel" style="margin-left: 60px;">State: </label>
+                <input type="text" id="state" style="margin-left: 60px;" placeholder="Enter your state">
+            </div>
+            <div class="row col-sm-4" id="admisssionDateContainer">
+                <label class="registrationLabel" style="margin-left: 30px;">City: </label>
+                <input type="text" id="city" style="margin-left: 30px;" placeholder="Enter your city">
+            </div>
+            <div class="row col-sm-4" id="admisssionDateContainer">
+                <label class="registrationLabel" style="margin-left: 30px;">Zip Code: </label>
+                <input type="text" id="zipCode" style="margin-left: 30px;" placeholder="Enter your zip code">
+            </div>
+        </div>
+        <div>
+            <button id="registrationSubmit">Submit</button>
+        </div>
+    </div>
+    <div id="userLoginTabContainer" class="container" style="height: 350px;">
+        <div>
+            <label for="userTypeDropdown" id="loginTypeLabel">Select Login Type:</label>
+            <select id="userTypeDropdown">
+                <option value="patient">User</option>
+                <option value="doctor">Doctor</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+        <div id="loginMainContainer" class="col-sm-12 row inputrow">
+            <div class="col-sm-12 row form-group">
+                <label for="emailId" class="registrationLabel">E-Mail Id:</label>
+                <input type="email" id="emailId" class="userinputprop" placeholder="Enter your email address" required>
+            </div>
+            <div class="col-sm-12 row form-group">
+                <label for="password" class="registrationLabel">Password:</label>
+                <input type="password" id="password" class="userinputprop" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" id="userLoginSubmit">Login</button>
+        </div>
+    </div>    
+</div>
+
+
+<script>
+    //var logged_in_user = {{  user_login | tojson }};
+    $(document).ready(function () {
+        register_login_events();
+        $('#tabs li a:not(:first)').addClass('inactive');
+        $('.container').hide();
+        $('.container:first').show();
+        $("#userStoryTab").removeClass('inactive');
+
+        $("#dobDate").datepicker({
+            dateFormat: 'yy-mm-dd',
+            changeMonth: true,
+            changeYear: true
+        });
+    });
+</script>
+{% endblock %}

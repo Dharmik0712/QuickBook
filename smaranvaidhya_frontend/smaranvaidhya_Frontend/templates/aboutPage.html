@@ -1,0 +1,51 @@
+{% extends 'Header.html' %}
+{% include 'includes/applicationHeaderPage.html' %}
+
+{% block content %}
+<div class="about-us-page">
+    <div class="about-us-hero">
+        <h1>About QuickBook</h1>
+        <p>Your trusted healthcare partner, connecting patients and doctors effortlessly.</p>
+    </div>
+    <div class="about-us-content">
+        <section class="mission-vision">
+            <div class="card">
+                <h2>Our Mission</h2>
+                <p>To bridge the gap between patients and healthcare providers by offering seamless, technology-driven solutions for appointment scheduling, patient management, and communication.</p>
+            </div>
+            <div class="card">
+                <h2>Our Vision</h2>
+                <p>To empower individuals with accessible, reliable, and efficient healthcare services, creating a globally connected healthcare ecosystem.</p>
+            </div>
+        </section>
+        <section class="motto">
+            <h2>Our Motto</h2>
+            <p><i>"Your health, our priority."</i></p>
+        </section>
+        <section class="features-services">
+            <h2>Features & Services</h2>
+            <div class="grid-container">
+                <div class="grid-item">
+                    <h3>For Patients</h3>
+                    <ul>
+                        <li>Convenient Appointment Scheduling</li>
+                        <li>Secure Health Records</li>
+                        <li>Instant Notifications</li>
+                        <li>Feedback Sharing</li>
+                    </ul>
+                </div>
+                <div class="grid-item">
+                    <h3>For Doctors</h3>
+                    <ul>
+                        <li>Optimized Calendar Management</li>
+                        <li>Patient Insights</li>
+                        <li>Improved Patient Engagement</li>
+                        <li>Time Efficiency</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% include 'includes/applicationFooter.html' %}
+{% endblock %}

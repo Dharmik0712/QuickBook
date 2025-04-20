@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/smaranvaidhyaLogo.ico') }}">
+    <title>QuickBook</title>
+    <link href={{url_for('static',filename='css/main.css')}} rel="stylesheet">
+    <link href={{url_for('static',filename='css/open_source/bootstrap.min.css')}} rel="stylesheet">
+    <link href={{url_for('static',filename='css/open_source/dataTables.min.css')}} rel="stylesheet">
+    <link href={{url_for('static',filename='css/open_source/jquery-ui.css')}} rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.js"></script>
+    <script src={{url_for('static',filename='js/open_source/jquery-3.7.1.min.js')}}></script>
+    <script src={{url_for('static',filename='js/open_source/bootstrap.min.js')}}></script>
+    <script src={{url_for('static',filename='js/open_source/dataTables.min.js')}}></script>
+    <script src={{url_for('static',filename='js/open_source/plotly-2.32.0.min.js')}}></script>
+    <script src={{url_for('static',filename='js/open_source/jquery-ui.min.js')}}></script>
+    <script src={{url_for('static',filename='js/open_source/jspdf.umd.min.js')}}></script>
+    <script src={{url_for('static',filename='js/open_source/jspdf.plugin.autotable.min.js')}}></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <script src={{url_for('static',filename='js/main.js')}}></script>
+</head>
+
+<body>
+    <div>
+        {% block head %}{% endblock %}
+        {% block content %}{% endblock %}
+    </div>
+</body>

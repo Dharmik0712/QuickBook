@@ -1,0 +1,192 @@
+{% extends 'Header.html' %}
+{% include 'includes/applicationHeaderPage.html' %}
+
+{% block content %}
+<h1 style="margin-left:5%; margin-top:1%;">Welcome, {{ session['email'] }}</h1>
+<div id="appointmentsContainer" class="container doctor-view-container"></div>
+
+<style>
+    body {
+        background-color: #f4f6f9;
+        font-family: 'Arial', sans-serif;
+    }
+    
+    .doctor-view-container {
+        max-width: 2400px;
+        margin: 30px auto;
+        padding: 30px;
+        background-color: #ffffff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table {
+        width: 100%;
+        background-color: #ffffff;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .table th, .table td {
+        vertical-align: middle;
+        padding: 12px;
+        border: 1px solid #dee2e6;
+        font-size: 14px;
+        word-wrap: break-word;
+    }
+    
+    .table th {
+        background-color: #28a745;
+        color: #ffffff;
+        font-weight: 600;
+        text-align: left;
+    }
+    
+    .table td {
+        max-width: 250px;
+        white-space: normal;
+        overflow-wrap: break-word;
+    }
+    
+    .table td.reason, .table td.conditions, .table td.medications, .table td.allergies, .table td.prescription {
+        max-width: 300px;
+        white-space: normal;
+    }
+    
+    .table td.visited {
+        max-width: 100px;
+    }
+    
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 14px;
+        border-radius: 4px;
+    }
+    
+    .btn-success {
+        background-color: #28a745;
+        border: none;
+    }
+    
+    .btn-success:hover {
+        background-color: #218838;
+    }
+    
+    #no-appointments {
+        color: #6b7280;
+        text-align: center;
+        font-size: 16px;
+        margin-top: 20px;
+    }
+    
+    .modal-content {
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .modal-header {
+        background-color: #28a745;
+        color: #ffffff;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+    
+    .modal-title {
+        font-size: 18px;
+        font-weight: 600;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .modal-body .form-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #343a40;
+    }
+    
+    .modal-body .form-control {
+        width: 100%;
+        border-color: #ced4da;
+        font-size: 14px;
+        padding: 8px;
+        border-radius: 4px;
+    }
+    
+    .modal-body .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #dee2e6;
+        padding: 10px 20px;
+    }
+    
+    .modal-footer .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+        border-radius: 4px;
+    }
+    
+    .modal-footer .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+    
+    .modal-footer .btn-primary {
+        background-color: #007bff;
+        border: none;
+        border-radius: 4px;
+    }
+    
+    .modal-footer .btn-primary:hover {
+        background-color: #0056b3;
+    }
+    
+    @media (max-width: 768px) {
+        .doctor-view-container {
+            margin: 15px;
+            padding: 20px;
+        }
+        
+        .table th, .table td {
+            font-size: 12px;
+            padding: 8px;
+        }
+        
+        .table td {
+            max-width: 150px;
+        }
+        
+        .table td.reason, .table td.conditions, .table td.medications, .table td.allergies, .table td.prescription {
+            max-width: 200px;
+        }
+        
+        .table td.visited {
+            max-width: 80px;
+        }
+        
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        
+        .modal-body {
+            padding: 15px;
+        }
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        register_login_events();
+        get_doctor_view_data();
+    });
+</script>
+{% endblock %}

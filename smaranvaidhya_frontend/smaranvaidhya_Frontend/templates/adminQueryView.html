@@ -1,0 +1,169 @@
+{% extends 'Header.html' %}
+{% include 'includes/applicationHeaderPage.html' %}
+
+{% block content %}
+<h1>Welcome, {{ session['email'] }}</h1>
+<div class="main-content">
+    <div id="historySection">
+        <h2>User's Queries</h2>
+        <table id="queriesTableBody" class="w-full border-collapse">
+            <thead>
+                <tr class="bg-green-200">
+                    <th class="border p-2">Query ID</th>
+                    <th class="border p-2">User ID</th>
+                    <th class="border p-2">Appointment ID</th>
+                    <th class="border p-2">Subject</th>
+                    <th class="border p-2">Query</th>
+                    <th class="border p-2">Created At</th>
+                    <th class="border p-2">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Queries will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+<style>
+    /* Table Container */
+    #queriesTableBody {
+        width: 90%; /* Limit the width to 90% of the container */
+        max-width: 1000px; /* Maximum width of the table */
+        margin: 30px auto; /* Center the table horizontally */
+        border-collapse: collapse;
+        background-color: #ffffff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    /* Table Header Styling */
+    #queriesTableBody thead {
+        background-color: #4caf50;
+        color: #fff;
+    }
+
+    #queriesTableBody th {
+        padding: 12px 15px;
+        text-align: left;
+        font-size: 16px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    /* Table Body Styling */
+    #queriesTableBody tbody {
+        background-color: #f9f9f9;
+    }
+
+    #queriesTableBody td {
+        padding: 12px 15px;
+        font-size: 14px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    /* Hover Effect for Rows */
+    #queriesTableBody tbody tr:hover {
+        background-color: #e0f7fa;
+        cursor: pointer;
+    }
+
+    /* Last Row Styling */
+    #queriesTableBody tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Alternate Row Background for Better Readability */
+    #queriesTableBody tbody tr:nth-child(odd) {
+        background-color: #f4f7fc;
+    }
+
+    /* Table Column Specific Styling */
+    #queriesTableBody td:nth-child(1) {
+        width: 100px; /* Query ID */
+    }
+
+    #queriesTableBody td:nth-child(2) {
+        width: 100px; /* User ID */
+    }
+
+    #queriesTableBody td:nth-child(3) {
+        width: 120px; /* Appointment ID */
+    }
+
+    #queriesTableBody td:nth-child(4) {
+        width: 150px; /* Subject */
+    }
+
+    #queriesTableBody td:nth-child(5) {
+        width: 200px; /* Query */
+    }
+
+    #queriesTableBody td:nth-child(6) {
+        width: 150px; /* Created At */
+    }
+
+    #queriesTableBody td:nth-child(7) {
+        width: 150px; /* Status */
+    }
+
+    /* Styling for Status Buttons */
+    #queriesTableBody .status-btn {
+        background-color: #ff7043;
+        color: white;
+        padding: 8px 12px;
+        text-align: center;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    #queriesTableBody .status-btn.pending {
+        background-color: #ffca28; /* Yellow for pending */
+    }
+
+    #queriesTableBody .status-btn.solved {
+        background-color: #4caf50; /* Green for solved */
+    }
+
+    #queriesTableBody .status-btn:hover {
+        opacity: 0.9;
+        cursor: pointer;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        #queriesTableBody th,
+        #queriesTableBody td {
+            padding: 10px 8px;
+            font-size: 12px;
+        }
+
+        #queriesTableBody td:nth-child(4),
+        #queriesTableBody td:nth-child(5) {
+            width: 120px;
+        }
+
+        #queriesTableBody td:nth-child(6),
+        #queriesTableBody td:nth-child(7) {
+            width: 100px;
+        }
+    }
+
+    /* Header Styling */
+    h2 {
+        color: #00796b;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        register_login_events();
+        get_queries();
+    });
+</script>
+{% endblock %}
+
