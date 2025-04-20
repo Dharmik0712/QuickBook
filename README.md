@@ -134,4 +134,4 @@ Open a Pull Request.
 License
 This project is licensed under the MIT License. See the LICENSE file for details.
 Contact
-For issues or questions, open an issue on GitHub or contact [your-email@example.com].
+For issues or questions, open an issue on GitHub or contact dharmiksompura1212@gmail.com .
