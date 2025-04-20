@@ -46,7 +46,7 @@ def get_logged_in_user():
         }
     return user_login, user_logged_in
 
-@app.route('/Homepage')
+@app.route('/')
 def Homepage():
     user_login = get_logged_in_user()
     return render_template('homePage.html',user_login = user_login)
