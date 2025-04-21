@@ -6,3 +6,4 @@ Werkzeug==2.3.7
 requests==2.31.0
 flask-cors
 flask-login
+Flask-SQLAlchemy
