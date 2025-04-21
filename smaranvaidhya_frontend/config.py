@@ -1,3 +1,3 @@
 class Config:
-    SQLALCHEMY_DATABASE_URI = 'postgresql://username:password@localhost:5432/smaranvaidhya'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://healthcare_user:12345678@127.0.0.1:5432/healthcare_db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
