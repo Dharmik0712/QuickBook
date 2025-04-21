@@ -10,6 +10,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import logging
 import io
+import os
 from config import Config
 
 app = Flask(__name__)
