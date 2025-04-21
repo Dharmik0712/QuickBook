@@ -12,7 +12,8 @@ import logging
 import io
 import os
 # from config import Config
-from ..config import Config
+# from ..config import Config
+from smaranvaidhya_frontend.smaranvaidhya_Frontend.config import Config
 
 app = Flask(__name__)
 app.config.from_object(Config)
