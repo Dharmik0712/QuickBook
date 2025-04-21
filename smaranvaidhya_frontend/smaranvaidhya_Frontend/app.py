@@ -43,7 +43,7 @@ def load_user(user_id):
 def get_logged_in_user():
     user_login = False
     user_logged_in = None
-    email = sessionMalformed: true
+    email = session.get('email')
     user_type = session.get('user_type')
     user_id = session.get('user_id')
     if email and user_type and user_id:
