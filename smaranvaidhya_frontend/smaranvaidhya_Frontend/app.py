@@ -17,10 +17,13 @@ from smaranvaidhya_frontend.smaranvaidhya_Frontend.config import Config
 
 app = Flask(__name__)
 app.config.from_object(Config)
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['SESSION_COOKIE_SECURE'] = True
+# app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+# app.config['SESSION_COOKIE_SECURE'] = True
+# app.secret_key = 'This_is_very_secret'
+# Database configuration (Use the external URL for your Render PostgreSQL)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://healthcare_user:N7dbWVRIzMBQwliulBiZ5wykBDzmxVd5@dpg-d02jpd3e5dus73bsfvq0-a.frankfurt-postgres.render.com/healthcare_t5xz'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'This_is_very_secret'
-
 # app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
@@ -61,6 +64,14 @@ def get_logged_in_user():
             "user_id": user_id
         }
     return user_login, user_logged_in
+# Example of setting up a basic model (if needed)
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+@app.route('/users')
+def users():
+    all_users = User.query.all()  # Fetch all users from the database
+    return jsonify([user.email for user in all_users])  # Return all users as JSON for testing
 
 @app.route('/')
 def index():
