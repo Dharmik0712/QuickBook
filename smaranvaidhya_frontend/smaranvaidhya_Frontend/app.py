@@ -11,7 +11,8 @@ from email.mime.multipart import MIMEMultipart
 import logging
 import io
 import os
-from config import Config
+# from config import Config
+from ..config import Config
 
 app = Flask(__name__)
 app.config.from_object(Config)
