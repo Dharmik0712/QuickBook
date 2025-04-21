@@ -21,8 +21,12 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = True
 app.secret_key = 'This_is_very_secret'
 
-# Initialize SQLAlchemy
+# app = Flask(__name__)
+app.config.from_object(Config)
 db = SQLAlchemy(app)
+
+# Initialize SQLAlchemy
+# db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -60,7 +64,8 @@ def get_logged_in_user():
 
 @app.route('/')
 def index():
-    return redirect(url_for('Homepage'))
+    # return redirect(url_for('Homepage'))
+    return render_template('homePage.html')
 
 @app.route('/Homepage')
 def Homepage():
