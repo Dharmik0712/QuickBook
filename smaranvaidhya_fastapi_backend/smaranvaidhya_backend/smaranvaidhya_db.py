@@ -3,12 +3,16 @@ import json
 import psycopg2.extras
 from datetime import datetime
 
-def connection():
-        conn = psycopg2.connect(
-                database="healthcare_db", user='healthcare_user', password='12345678', host='127.0.0.1', port= '5432'
-        )
-        return conn
-
+# def connection():
+#         conn = psycopg2.connect(
+#                 database="healthcare_db", user='healthcare_user', password='12345678', host='127.0.0.1', port= '5432'
+#         )
+#         return conn
+try:
+        connection = psycopg2.connect("postgresql://healthcare_user:N7dbWVRIzMBQwliulBiZ5wykBDzmxVd5@dpg-d02jpd3e5dus73bsfvq0-a.frankfurt-postgres.render.com/healthcare_t5xz")
+        print("✅ Connection Successful")
+except Exception as e:
+        print("❌ Connection Failed:", e)
 def get_latest_appointment_id(patient_id):
         conn = connection()
         cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
