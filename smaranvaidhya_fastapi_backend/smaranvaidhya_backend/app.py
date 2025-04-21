@@ -136,13 +136,24 @@ async def post_appointment_booking_data(appointment_data: schemas.AppointmentDat
 def read_root():
     return {"message": "Hello, FastAPI!"}
 
+# @app.post("/attempt_to_login_for_user")
+# def attempt_to_login_for_user(login_data: schemas.LoginForUser):
+#     valid_user, user_id = smv_db.validate_login_details(login_data.dict())
+#     if valid_user:
+#         return JSONResponse(content={"status": "Login Successful", "user_id": user_id}, status_code=200)
+#     else:
+#         return JSONResponse(content={"status": "Login Failed"}, status_code=401)
 @app.post("/attempt_to_login_for_user")
 def attempt_to_login_for_user(login_data: schemas.LoginForUser):
-    valid_user, user_id = smv_db.validate_login_details(login_data.dict())
-    if valid_user:
-        return JSONResponse(content={"status": "Login Successful", "user_id": user_id}, status_code=200)
-    else:
-        return JSONResponse(content={"status": "Login Failed"}, status_code=401)
+    try:
+        valid_user, user_id = smv_db.validate_login_details(login_data.dict())
+        if valid_user:
+            return JSONResponse(content={"status": "Login Successful", "user_id": user_id}, status_code=200)
+        else:
+            return JSONResponse(content={"status": "Login Failed"}, status_code=401)
+    except Exception as e:
+        logger.error(f"Login failed due to error: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
 @app.post("/save_user_registration_details")
 def save_user_registration_details(reg_details: schemas.UserRegistration):
