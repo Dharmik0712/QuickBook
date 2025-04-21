@@ -3,22 +3,31 @@ from flask_cors import CORS, cross_origin
 import json
 import requests
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
+from flask_sqlalchemy import SQLAlchemy
 import base64
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import logging
 import io
+from config import Config
 
 app = Flask(__name__)
+app.config.from_object(Config)
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = True
 app.secret_key = 'This_is_very_secret'
+
+# Initialize SQLAlchemy
+db = SQLAlchemy(app)
+
 login_manager = LoginManager()
 login_manager.init_app(app)
+
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
 class User(UserMixin):
     def __init__(self, id, email, user_type):
         self.id = id
@@ -34,7 +43,7 @@ def load_user(user_id):
 def get_logged_in_user():
     user_login = False
     user_logged_in = None
-    email = session.get('email')
+    email = sessionMalformed: true
     user_type = session.get('user_type')
     user_id = session.get('user_id')
     if email and user_type and user_id:
@@ -47,9 +56,13 @@ def get_logged_in_user():
     return user_login, user_logged_in
 
 @app.route('/')
+def index():
+    return redirect(url_for('Homepage'))
+
+@app.route('/Homepage')
 def Homepage():
     user_login = get_logged_in_user()
-    return render_template('homePage.html',user_login = user_login)
+    return render_template('homePage.html', user_login=user_login)
 
 @app.route('/bookAppointment')
 @login_required
@@ -57,7 +70,7 @@ def bookAppointment():
     user_login = get_logged_in_user()
     user_info = session.get('email')
     user_type = session.get('user_type')
-    return render_template('bookAppointment.html',user_login = user_login,user_type = user_type,user_info = user_info)
+    return render_template('bookAppointment.html', user_login=user_login, user_type=user_type, user_info=user_info)
 
 @app.route('/confirmBooking', methods=['GET', 'POST'])
 @login_required
@@ -77,7 +90,6 @@ def confirmBooking():
             return jsonify(response.json()), 200
         logger.error(f"Backend failed: {response.status_code if response else 'No response'}")
         return jsonify({"status": "error", "message": "Backend server error"}), 500
-    # GET request: Render page with URL params
     logger.debug(f"Received GET request to /confirmBooking with args: {request.args}")
     return render_template('confirmBooking.html', user_login=user_login, user_type=user_logged_in['user_type'], user_info=user_logged_in['email'])
 
@@ -85,17 +97,17 @@ def confirmBooking():
 def patientLoginPage():
     user_login, user_info = get_logged_in_user()
     user_id = session.get('user_id') if user_login else None
-    return render_template('patientLoginPage.html', user_login=user_login, user_id=user_id,user_info=user_info)
+    return render_template('patientLoginPage.html', user_login=user_login, user_id=user_id, user_info=user_info)
 
 @app.route('/aboutPage')
 def aboutPage():
     user_login = get_logged_in_user()
-    return render_template('aboutPage.html',user_login = user_login)
+    return render_template('aboutPage.html', user_login=user_login)
 
 @app.route('/contactUsPage')
 def contactUsPage():
     user_login = get_logged_in_user()
-    return render_template('contactUsPage.html',user_login = user_login)
+    return render_template('contactUsPage.html', user_login=user_login)
 
 @app.route('/doctorsInfo')
 @login_required
@@ -103,7 +115,7 @@ def doctorsInfo():
     user_login = get_logged_in_user()
     user_info = session.get('email')
     user_type = session.get('user_type')
-    return render_template('doctorsInfo.html',user_login = user_login,user_type = user_type,user_info = user_info)
+    return render_template('doctorsInfo.html', user_login=user_login, user_type=user_type, user_info=user_info)
 
 @app.route('/doctorsView')
 @login_required
@@ -111,7 +123,7 @@ def doctorsView():
     user_login = get_logged_in_user()
     user_info = session.get('email')
     user_type = session.get('user_type')
-    return render_template('doctorView.html',user_login = user_login,user_type = user_type,user_info = user_info)
+    return render_template('doctorView.html', user_login=user_login, user_type=user_type, user_info=user_info)
 
 @app.route('/Profile')
 @login_required
@@ -119,7 +131,7 @@ def userProfile():
     user_login = get_logged_in_user()
     user_info = session.get('email')
     user_type = session.get('user_type')
-    return render_template('profile.html',user_login = user_login,user_type = user_type,user_info = user_info)
+    return render_template('profile.html', user_login=user_login, user_type=user_type, user_info=user_info)
 
 @app.route('/patientHistory')
 @login_required
@@ -127,7 +139,7 @@ def patientHistory():
     user_login = get_logged_in_user()
     user_info = session.get('email')
     user_type = session.get('user_type')
-    return render_template('patientHistory.html',user_login = user_login,user_type = user_type,user_info = user_info)
+    return render_template('patientHistory.html', user_login=user_login, user_type=user_type, user_info=user_info)
 
 @app.route('/raiseQuery')
 @login_required
@@ -184,7 +196,7 @@ def attempt_to_login_for_user():
     request_data = request.json
     response = requests.post(url, json=request_data)
     response_data = response.json()
-    print("Login Response Data:", response_data)  
+    print("Login Response Data:", response_data)
     if response_data["status"] == "Login Successful":
         if "user_id" not in response_data:
             return jsonify({"status": "error", "message": "User ID missing in response"}), 500
@@ -205,7 +217,7 @@ def save_user_registration_details():
     response = post_api_function(url, request_data)
     return response.json() if response else jsonify({"status": "error", "message": "Server error."})
 
-@app.route('/post_contact_us_data', methods=['POST'])   
+@app.route('/post_contact_us_data', methods=['POST'])
 def post_contact_us_data():
     url = get_service_url() + '/post_contact_us_data'
     request_data = request.json
@@ -258,20 +270,20 @@ def get_doctor_view_data():
         return jsonify({'error': 'Doctor ID not found'}), 400
     url = get_service_url() + f'/get_doctor_view_data?doctor_id={doctor_id}'
     response = get_api_function(url)
-    return jsonify(response.json())  
+    return jsonify(response.json())
 
 @app.route('/get_user_profile', methods=['GET'])
 def get_user_profile():
     user_login, user_logged_in = get_logged_in_user()
     if not user_login:
         return jsonify({'error': 'User not logged in'}), 401
-    user_id = user_logged_in.get("user_id")  
+    user_id = user_logged_in.get("user_id")
     if not user_id:
         return jsonify({'error': 'Patient ID not found'}), 400
     url = get_service_url() + f'/get_user_profile?user_id={user_id}'
     response = get_api_function(url)
     if response.status_code == 200:
-        return jsonify(response.json())  
+        return jsonify(response.json())
     else:
         return jsonify({'error': 'Failed to fetch user profile'}), response.status_code
 
@@ -280,7 +292,7 @@ def update_user_profile(user_id):
     user_login, user_logged_in = get_logged_in_user()
     if not user_login:
         return jsonify({'error': 'User not logged in'}), 401
-    user_id = request.view_args.get("user_id")  
+    user_id = request.view_args.get("user_id")
     data = request.get_json(silent=True)
     url = get_service_url() + f'/update_user_profile/{user_id}'
     headers = {"Content-Type": "application/json"}
@@ -294,13 +306,13 @@ def get_user_history():
     user_login, user_logged_in = get_logged_in_user()
     if not user_login:
         return jsonify({'error': 'User not logged in'}), 401
-    user_id = user_logged_in.get("user_id")  
+    user_id = user_logged_in.get("user_id")
     if not user_id:
         return jsonify({'error': 'Patient ID not found'}), 400
     url = get_service_url() + f'/get_user_history?user_id={user_id}'
     response = get_api_function(url)
     if response.status_code == 200:
-        return jsonify(response.json())  
+        return jsonify(response.json())
     else:
         return jsonify({'error': 'Failed to fetch user profile'}), response.status_code
 
@@ -345,11 +357,11 @@ def download_prescription(appointment_id):
         response = requests.get(url, stream=True)
         if response.status_code != 200:
             return jsonify({'data': response.json().get('data', 'Error downloading prescription')}), response.status_code
-        
+
         content_type = response.headers.get('content-type')
         content_disposition = response.headers.get('content-disposition', '')
         filename = content_disposition.split('filename=')[1].strip('"') if 'filename=' in content_disposition else f'prescription_{appointment_id}.pdf'
-        
+
         return Response(
             response.content,
             mimetype=content_type,
@@ -405,11 +417,11 @@ def proxy_get_doctor_profile():
     if not email:
         logger.error("Email parameter missing in get_doctor_profile request")
         return {"detail": "Email parameter required"}, 400
-    
+
     try:
         response = requests.get(f'http://localhost:2000/get_doctor_profile?email={email}', timeout=5)
         logger.info(f"FastAPI response - Status: {response.status_code}, Headers: {response.headers}, Body: {response.text}")
-        response.raise_for_status()  # Raises exception for 4xx/5xx status codes
+        response.raise_for_status()
         return response.json(), response.status_code
     except requests.exceptions.ConnectionError as e:
         logger.error(f"Failed to connect to FastAPI: {str(e)}")
@@ -511,7 +523,7 @@ def proxy_mark_appointment_visited(appointment_id):
     except requests.RequestException as e:
         logger.error(f"Error proxying to FastAPI: {str(e)}")
         return jsonify({'error': str(e)}), 500
-    
+
 @app.route('/update_prescription_text/<int:appointment_id>', methods=['POST'])
 def proxy_update_prescription_text(appointment_id):
     try:
@@ -539,4 +551,6 @@ def proxy_update_prescription_text(appointment_id):
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()  # Create database tables if they don't exist
     app.run(debug=True, port=7078)

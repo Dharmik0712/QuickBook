@@ -1,481 +1,556 @@
-import psycopg2
-from datetime import datetime
+from flask import Flask, render_template, request, url_for, jsonify, json, session, redirect, Response, send_file
+from flask_cors import CORS, cross_origin
+import json
+import requests
+from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
+from flask_sqlalchemy import SQLAlchemy
+import base64
 import smtplib
-from pydantic import BaseModel
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import logging
-from fastapi import FastAPI, HTTPException, Query, UploadFile, File
-from fastapi.responses import JSONResponse, FileResponse, Response
-from fastapi.middleware.cors import CORSMiddleware
-import smaranvaidhya_db as smv_db
-import schemas
-import base64
 import io
-import json
-from typing import Optional
-from email.mime.base import MIMEBase
-from email import encoders
-import os
+from config import Config
+
+app = Flask(__name__)
+app.config.from_object(Config)
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = True
+app.secret_key = 'This_is_very_secret'
+
+# Initialize SQLAlchemy
+db = SQLAlchemy(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
-    allow_headers=["*"],
-)
+class User(UserMixin):
+    def __init__(self, id, email, user_type):
+        self.id = id
+        self.email = email
+        self.user_type = user_type
 
-# SMTP Configuration
-SMTP_SERVER = 'smtp.gmail.com'
-SMTP_PORT = 587
-EMAIL_ADDRESS = 'quickbook.appointments@gmail.com'
-EMAIL_PASSWORD = 'duyi temb getf vimq'  # Replace with your Gmail App Password
+@login_manager.user_loader
+def load_user(user_id):
+    if 'user_id' in session:
+        return User(session['user_id'], session['email'], session['user_type'])
+    return None
 
-def send_email(to_email: str, subject: str, body: str):
+def get_logged_in_user():
+    user_login = False
+    user_logged_in = None
+    email = sessionMalformed: true
+    user_type = session.get('user_type')
+    user_id = session.get('user_id')
+    if email and user_type and user_id:
+        user_login = True
+        user_logged_in = {
+            "email": email,
+            "user_type": user_type,
+            "user_id": user_id
+        }
+    return user_login, user_logged_in
+
+@app.route('/')
+def index():
+    return redirect(url_for('Homepage'))
+
+@app.route('/Homepage')
+def Homepage():
+    user_login = get_logged_in_user()
+    return render_template('homePage.html', user_login=user_login)
+
+@app.route('/bookAppointment')
+@login_required
+def bookAppointment():
+    user_login = get_logged_in_user()
+    user_info = session.get('email')
+    user_type = session.get('user_type')
+    return render_template('bookAppointment.html', user_login=user_login, user_type=user_type, user_info=user_info)
+
+@app.route('/confirmBooking', methods=['GET', 'POST'])
+@login_required
+def confirmBooking():
+    user_login, user_logged_in = get_logged_in_user()
+    if request.method == 'POST':
+        logger.debug("Received POST request to /confirmBooking")
+        request_data = request.get_json()
+        if not request_data:
+            logger.error("No JSON data received")
+            return jsonify({"status": "error", "message": "No data received"}), 400
+        request_data['patient_id'] = session['user_id']
+        url = get_service_url() + '/post_appointment_booking_data'
+        response = post_api_function(url, request_data)
+        if response and response.status_code == 200:
+            logger.debug(f"Backend response: {response.json()}")
+            return jsonify(response.json()), 200
+        logger.error(f"Backend failed: {response.status_code if response else 'No response'}")
+        return jsonify({"status": "error", "message": "Backend server error"}), 500
+    logger.debug(f"Received GET request to /confirmBooking with args: {request.args}")
+    return render_template('confirmBooking.html', user_login=user_login, user_type=user_logged_in['user_type'], user_info=user_logged_in['email'])
+
+@app.route('/patientLoginPage')
+def patientLoginPage():
+    user_login, user_info = get_logged_in_user()
+    user_id = session.get('user_id') if user_login else None
+    return render_template('patientLoginPage.html', user_login=user_login, user_id=user_id, user_info=user_info)
+
+@app.route('/aboutPage')
+def aboutPage():
+    user_login = get_logged_in_user()
+    return render_template('aboutPage.html', user_login=user_login)
+
+@app.route('/contactUsPage')
+def contactUsPage():
+    user_login = get_logged_in_user()
+    return render_template('contactUsPage.html', user_login=user_login)
+
+@app.route('/doctorsInfo')
+@login_required
+def doctorsInfo():
+    user_login = get_logged_in_user()
+    user_info = session.get('email')
+    user_type = session.get('user_type')
+    return render_template('doctorsInfo.html', user_login=user_login, user_type=user_type, user_info=user_info)
+
+@app.route('/doctorsView')
+@login_required
+def doctorsView():
+    user_login = get_logged_in_user()
+    user_info = session.get('email')
+    user_type = session.get('user_type')
+    return render_template('doctorView.html', user_login=user_login, user_type=user_type, user_info=user_info)
+
+@app.route('/Profile')
+@login_required
+def userProfile():
+    user_login = get_logged_in_user()
+    user_info = session.get('email')
+    user_type = session.get('user_type')
+    return render_template('profile.html', user_login=user_login, user_type=user_type, user_info=user_info)
+
+@app.route('/patientHistory')
+@login_required
+def patientHistory():
+    user_login = get_logged_in_user()
+    user_info = session.get('email')
+    user_type = session.get('user_type')
+    return render_template('patientHistory.html', user_login=user_login, user_type=user_type, user_info=user_info)
+
+@app.route('/raiseQuery')
+@login_required
+def raiseQuery():
+    user_login, user_logged_in = get_logged_in_user()
+    return render_template('querypage.html', user_login=user_login, user_type=user_logged_in['user_type'], user_info=user_logged_in['email'])
+
+@app.route('/adminQueries')
+@login_required
+def adminQueries():
+    user_login, user_logged_in = get_logged_in_user()
+    if user_logged_in['user_type'] != 'admin':
+        return jsonify({'error': 'Unauthorized access'}), 403
+    return render_template('adminQueryView.html', user_login=user_login, user_type=user_logged_in['user_type'], user_info=user_logged_in['email'])
+
+@app.route('/doctorProfile')
+def doctorProfile():
+    print("Session email:", session.get('email'))
+    if 'email' not in session:
+        return redirect('/login')
+    return render_template('DoctorProfile.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    session.clear()
+    return redirect(url_for('patientLoginPage'))
+
+def post_api_function(url, data):
     try:
-        msg = MIMEMultipart()
-        msg['From'] = EMAIL_ADDRESS
-        msg['To'] = to_email
-        msg['Subject'] = subject
-        msg.attach(MIMEText(body, 'html'))
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.starttls()
-        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        server.sendmail(EMAIL_ADDRESS, to_email, msg.as_string())
-        server.quit()
-        logger.debug(f"Email sent successfully to {to_email}")
-        return True
+        logger.debug(f"Posting to {url} with data: {data}")
+        response = requests.post(url, json=data)
+        return response
     except Exception as e:
-        logger.error(f"Failed to send email to {to_email}: {str(e)}")
-        return False
+        logger.error(f"Exception in post_api_function: {str(e)}")
+        return None
 
-@app.post("/post_appointment_booking_data")
-async def post_appointment_booking_data(appointment_data: schemas.AppointmentData):
-    logger.debug(f"Received appointment data: {appointment_data.dict()}")
+def get_api_function(url):
     try:
-        result = smv_db.post_appointment_booking_data(appointment_data.dict())
-        if result == "Success":
-            appointment_id = smv_db.get_latest_appointment_id(appointment_data.patient_id)
-            logger.debug(f"Retrieved appointment_id: {appointment_id}")
-            if appointment_id:
-                appointment_details = smv_db.get_appointment_email_data(appointment_id)
-                if appointment_details:
-                    subject = f"Appointment Confirmation with Dr. {appointment_details['doctor_first_name']} {appointment_details['doctor_last_name']}"
-                    body = f"""
-                    <html>
-                        <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px;">
-                            <h2 style="color: #2c3e50;">Appointment Confirmation</h2>
-                            <p>Dear {appointment_details['patient_first_name']} {appointment_details['patient_last_name']},</p>
-                            <p>Your appointment with <b>Dr. {appointment_details['doctor_first_name']} {appointment_details['doctor_last_name']}</b> ({appointment_details['specialist']}) has been successfully confirmed. Below are the details:</p>
-                            <h3 style="color: #2c3e50;">Appointment Details</h3>
-                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold; width: 40%;">Appointment ID:</td>
-                                    <td style="padding: 8px;">{appointment_details['appointment_id']}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold;">Date:</td>
-                                    <td style="padding: 8px;">{appointment_details['date_of_appointment']}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold;">Time:</td>
-                                    <td style="padding: 8px;">{appointment_details['slot_of_appointment']}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold;">Mode of Payment:</td>
-                                    <td style="padding: 8px;">{appointment_details['mode_of_payment']}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold;">Consultancy Type:</td>
-                                    <td style="padding: 8px;">{appointment_details['consultancytype']}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold;">Fees:</td>
-                                    <td style="padding: 8px;">₹{appointment_details['fees']}</td>
-                                </tr>
-                            </table>
-                            <h3 style="color: #2c3e50;">Doctor's Contact Information</h3>
-                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                                <tr>
-                                    <td style="padding: 8px; font-weight: bold;">Clinic Address:</td>
-                                    <td style="padding: 8px;"><a href="{appointment_details['doctor_clinic_address']}">{appointment_details['doctor_clinic_address']}</a></td>
-                                </tr>
-                            </table>
-                            <p>Please make sure to <b>arrive on time</b> for your appointment. In case of any emergencies or urgent queries, feel free to reach out to the doctor's <b>emergency contact number</b>: {appointment_details['emergency_contact']}.</p>
-                            <p>If you encounter any inconveniences or require assistance, you can <b>raise a query</b> with us, and our <b>technical team</b> will reach out to you promptly to address the issue.</p>
-                            <p>Thank you for choosing our services. If you have any questions or need to reschedule, feel free to contact us.</p>
-                            <p style="margin-top: 20px;">Best regards,<br>Your QuickBook Healthcare Team</p>
-                            <hr style="border: 0; border-top: 1px solid #eee;">
-                            <p style="font-size: 12px; color: #777;">This is an automated email. Please do not reply directly to this message.</p>
-                        </body>
-                    </html>
-                    """
-                    if send_email(appointment_details['patient_email'], subject, body):
-                        smv_db.update_email_status(appointment_details['appointment_id'])
-                        logger.debug(f"Email sent and status updated for appointment {appointment_details['appointment_id']}")
-                    else:
-                        logger.error(f"Failed to send email for appointment {appointment_details['appointment_id']}")
-                else:
-                    logger.error(f"No appointment details found for appointment_id {appointment_id}")
-            else:
-                logger.error("Failed to retrieve appointment_id")
-            return JSONResponse(content={"data": "Success"}, status_code=200)
-        else:
-            logger.error(f"Failed to save appointment: {result}")
-            raise HTTPException(status_code=500, detail=result)
+        logger.debug(f"Getting from {url}")
+        response = requests.get(url)
+        return response
     except Exception as e:
-        logger.error(f"Error processing appointment: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Exception in get_api_function: {str(e)}")
+        return None
 
-@app.get("/fastapi")
-def read_root():
-    return {"message": "Hello, FastAPI!"}
+def get_service_url():
+    return 'http://127.0.0.1:2000'
 
-@app.post("/attempt_to_login_for_user")
-def attempt_to_login_for_user(login_data: schemas.LoginForUser):
-    valid_user, user_id = smv_db.validate_login_details(login_data.dict())
-    if valid_user:
-        return JSONResponse(content={"status": "Login Successful", "user_id": user_id}, status_code=200)
+@app.route('/attempt_to_login_for_user', methods=['POST'])
+def attempt_to_login_for_user():
+    url = get_service_url() + '/attempt_to_login_for_user'
+    request_data = request.json
+    response = requests.post(url, json=request_data)
+    response_data = response.json()
+    print("Login Response Data:", response_data)
+    if response_data["status"] == "Login Successful":
+        if "user_id" not in response_data:
+            return jsonify({"status": "error", "message": "User ID missing in response"}), 500
+        session["email"] = request_data["email"]
+        session["user_type"] = request_data["user_login_type"]
+        session["user_id"] = response_data["user_id"]
+        user = User(request_data["email"], response_data["user_id"], request_data["user_login_type"])
+        login_user(user)
     else:
-        return JSONResponse(content={"status": "Login Failed"}, status_code=401)
+        session.clear()
+    return jsonify(response_data)
 
-@app.post("/save_user_registration_details")
-def save_user_registration_details(reg_details: schemas.UserRegistration):
-    print(reg_details)
-    result = smv_db.save_user_registration_details(reg_details.dict())
-    response = {"data": result}
-    return JSONResponse(content=response, status_code=200)
+@app.route('/save_user_registration_details', methods=['POST'])
+def save_user_registration_details():
+    url = get_service_url() + '/save_user_registration_details'
+    request_data = request.json
+    print(request_data)
+    response = post_api_function(url, request_data)
+    return response.json() if response else jsonify({"status": "error", "message": "Server error."})
 
-@app.post("/post_contact_us_data")
-def post_contact_us_data(contact_data: schemas.ContactData):
-    print(contact_data)
-    result = smv_db.post_contact_us_data(contact_data.dict())
-    response = {"data": result}
-    return JSONResponse(content=response, status_code=200)
+@app.route('/post_contact_us_data', methods=['POST'])
+def post_contact_us_data():
+    url = get_service_url() + '/post_contact_us_data'
+    request_data = request.json
+    print(request_data)
+    response = post_api_function(url, request_data)
+    return response.json() if response else jsonify({"status": "error", "message": "Server error."})
 
-@app.post("/post_doctor_information_data")
-async def post_doctor_information_data(doc_reg_details: schemas.DoctorRegistration):
-    print(doc_reg_details)
-    result = smv_db.post_doctor_information_data(doc_reg_details.dict())
-    print(doc_reg_details.dict())
-    response = {"data": result}
-    return JSONResponse(content=response, status_code=200)
+@app.route('/post_doctor_information_data', methods=['POST'])
+def post_doctor_information_data():
+    url = get_service_url() + '/post_doctor_information_data'
+    form_data = request.form.to_dict()
+    if 'doctor_image' in request.files:
+        image_file = request.files['doctor_image']
+        form_data['doctor_image'] = base64.b64encode(image_file.read()).decode('utf-8')
+    response = post_api_function(url, form_data)
+    return response.json() if response else jsonify({"status": "error", "message": "Server error."})
 
-@app.get("/get_doctor_data")
+@app.route('/get_doctor_data', methods=['GET'])
 def get_doctor_data():
-    result = smv_db.get_doctor_data()
-    response = {"data": result}
-    return JSONResponse(content=response, status_code=200)
+    url = get_service_url() + '/get_doctor_data'
+    response = get_api_function(url)
+    return json.dumps(response.json())
 
-@app.get("/get_doctor_view_data")
-def get_doctor_view_data(doctor_id: str = Query(...)):
-    result = smv_db.get_doctor_view_data(doctor_id)
-    return JSONResponse(content=result, status_code=200)
+@app.route('/post_appointment_booking_data', methods=['POST'])
+def post_appointment_booking_data():
+    logger.debug("Received POST request to /post_appointment_booking_data")
+    if 'user_id' not in session:
+        logger.warning("User not logged in")
+        return jsonify({"status": "error", "message": "User not logged in"}), 401
+    request_data = request.get_json()
+    if not request_data:
+        logger.error("No JSON data received")
+        return jsonify({"status": "error", "message": "No data received"}), 400
+    request_data['patient_id'] = session['user_id']
+    url = get_service_url() + '/post_appointment_booking_data'
+    response = post_api_function(url, request_data)
+    if response:
+        logger.debug(f"Backend response: {response.json()}")
+        return jsonify(response.json()), response.status_code
+    logger.error("Backend server error")
+    return jsonify({"status": "error", "message": "Backend server error"}), 500
 
-@app.get("/get_user_profile")
-def get_user_profile(user_id: str = Query(...)):
-    result = smv_db.get_user_profile(user_id)
-    if result is None:
-        return JSONResponse(content={"error": "User not found"}, status_code=404)
-    return JSONResponse(content=result, status_code=200)
+@app.route('/get_doctor_view_data', methods=['GET'])
+def get_doctor_view_data():
+    user_login, user_logged_in = get_logged_in_user()
+    if not user_login:
+        return jsonify({'error': 'User not logged in'}), 401
+    doctor_id = user_logged_in["user_id"]
+    if not doctor_id:
+        return jsonify({'error': 'Doctor ID not found'}), 400
+    url = get_service_url() + f'/get_doctor_view_data?doctor_id={doctor_id}'
+    response = get_api_function(url)
+    return jsonify(response.json())
 
-@app.put("/update_user_profile/{user_id}")
-async def update_user_profile(user_id: str, user: schemas.UpdateUserProfileSchema):
+@app.route('/get_user_profile', methods=['GET'])
+def get_user_profile():
+    user_login, user_logged_in = get_logged_in_user()
+    if not user_login:
+        return jsonify({'error': 'User not logged in'}), 401
+    user_id = user_logged_in.get("user_id")
+    if not user_id:
+        return jsonify({'error': 'Patient ID not found'}), 400
+    url = get_service_url() + f'/get_user_profile?user_id={user_id}'
+    response = get_api_function(url)
+    if response.status_code == 200:
+        return jsonify(response.json())
+    else:
+        return jsonify({'error': 'Failed to fetch user profile'}), response.status_code
+
+@app.route('/update_user_profile/<user_id>', methods=['PUT'])
+def update_user_profile(user_id):
+    user_login, user_logged_in = get_logged_in_user()
+    if not user_login:
+        return jsonify({'error': 'User not logged in'}), 401
+    user_id = request.view_args.get("user_id")
+    data = request.get_json(silent=True)
+    url = get_service_url() + f'/update_user_profile/{user_id}'
+    headers = {"Content-Type": "application/json"}
+    response = requests.put(url, json=data, headers=headers)
+    if response.status_code == 200:
+        return jsonify(response.json())
+    return jsonify({'error': response.json().get('detail', 'Update failed')}), response.status_code
+
+@app.route('/get_user_history', methods=['GET'])
+def get_user_history():
+    user_login, user_logged_in = get_logged_in_user()
+    if not user_login:
+        return jsonify({'error': 'User not logged in'}), 401
+    user_id = user_logged_in.get("user_id")
+    if not user_id:
+        return jsonify({'error': 'Patient ID not found'}), 400
+    url = get_service_url() + f'/get_user_history?user_id={user_id}'
+    response = get_api_function(url)
+    if response.status_code == 200:
+        return jsonify(response.json())
+    else:
+        return jsonify({'error': 'Failed to fetch user profile'}), response.status_code
+
+def save_prescription(appointment_id, file_content, mime_type):
     try:
-        result = smv_db.update_user_profile(user_id, user.dict())
-        if result:
-            return {"message": "Profile updated successfully"}
-        raise HTTPException(status_code=404, detail="User not found")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/get_user_history")
-def get_user_history(user_id: str = Query(...)):
-    result = smv_db.get_user_history(user_id)
-    if result is None:
-        return JSONResponse(content={"error": "User not found"}, status_code=404)
-    return JSONResponse(content=result, status_code=200)
-
-# SQL Migration to ensure email_sent column exists
-def ensure_email_sent_column():
-    conn = smv_db.connection()
-    cursor = conn.cursor()
-    try:
-        cursor.execute("""
-            ALTER TABLE smaranvaidhya.appointment_data
-            ADD COLUMN IF NOT EXISTS email_sent BOOLEAN DEFAULT FALSE;
-        """)
-        conn.commit()
-        logger.debug("Ensured email_sent column exists")
-    except Exception as e:
-        logger.error(f"Error adding email_sent column: {str(e)}")
-        conn.rollback()
-    finally:
-        cursor.close()
-        conn.close()
-ensure_email_sent_column()
-
-@app.post("/upload_prescription/{appointment_id}")
-async def upload_prescription(appointment_id: int, file: UploadFile = File(...)):
-    logger.debug(f"Uploading prescription for appointment_id: {appointment_id}")
-    try:
-        if file.content_type not in ['image/jpeg', 'image/png', 'application/pdf']:
-            raise HTTPException(status_code=400, detail="Invalid file type. Only JPEG, PNG, or PDF allowed.")
-        file_content = await file.read()
-        result = smv_db.save_prescription(appointment_id, file_content, file.content_type)
-        if result == "Success":
-            return JSONResponse(content={"data": "Prescription uploaded successfully"}, status_code=200)
+        url = get_service_url() + f'/upload_prescription/{appointment_id}'
+        files = {'file': ('prescription', file_content, mime_type)}
+        response = requests.post(url, files=files)
+        if response.status_code == 200:
+            return "Success"
         else:
-            raise HTTPException(status_code=500, detail=result)
+            return f"Failed: {response.json().get('data', 'Unknown error')}"
+    except Exception as e:
+        logger.error(f"Error saving prescription: {str(e)}")
+        return f"Failed: {str(e)}"
+
+@app.route('/upload_prescription/<int:appointment_id>', methods=['POST'])
+def upload_prescription(appointment_id):
+    try:
+        if 'file' not in request.files:
+            return jsonify({'data': 'No file provided'}), 400
+        file = request.files['file']
+        if not file.filename:
+            return jsonify({'data': 'No file selected'}), 400
+        allowed_types = ['image/jpeg', 'image/png', 'application/pdf']
+        if file.content_type not in allowed_types:
+            return jsonify({'data': 'Invalid file type. Only JPEG, PNG, or PDF allowed.'}), 400
+        file_content = file.read()
+        result = save_prescription(appointment_id, file_content, file.content_type)
+        if result == "Success":
+            return jsonify({'data': 'Prescription uploaded successfully'}), 200
+        else:
+            return jsonify({'data': result}), 500
     except Exception as e:
         logger.error(f"Error uploading prescription: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        return jsonify({'data': f'Error: {str(e)}'}), 500
 
-@app.get("/download_prescription/{appointment_id}")
-async def download_prescription(appointment_id: int):
-    logger.debug(f"Downloading prescription for appointment_id: {appointment_id}")
+@app.route('/download_prescription/<int:appointment_id>', methods=['GET'])
+def download_prescription(appointment_id):
     try:
-        prescription = smv_db.get_prescription(appointment_id)
-        if not prescription or not prescription['prescription_file']:
-            raise HTTPException(status_code=404, detail="Prescription not found")
-        file_content = prescription['prescription_file']
-        mime_type = prescription['prescription_mime_type']
-        file_extension = {
-            "application/pdf": "pdf",
-            "image/jpeg": "jpg",
-            "image/png": "png"
-        }.get(mime_type, "bin")
-        filename = f"prescription_{appointment_id}.{file_extension}"
+        url = get_service_url() + f'/download_prescription/{appointment_id}'
+        response = requests.get(url, stream=True)
+        if response.status_code != 200:
+            return jsonify({'data': response.json().get('data', 'Error downloading prescription')}), response.status_code
+
+        content_type = response.headers.get('content-type')
+        content_disposition = response.headers.get('content-disposition', '')
+        filename = content_disposition.split('filename=')[1].strip('"') if 'filename=' in content_disposition else f'prescription_{appointment_id}.pdf'
+
         return Response(
-            content=file_content,
-            media_type=mime_type,
-            headers={
-                "Content-Disposition": f"attachment; filename={filename}",
-                "Content-Length": str(len(file_content))
-            }
+            response.content,
+            mimetype=content_type,
+            headers={'Content-Disposition': f'attachment; filename={filename}'}
         )
     except Exception as e:
         logger.error(f"Error downloading prescription: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error downloading prescription: {str(e)}")
+        return jsonify({'data': f'Error: {str(e)}'}), 500
 
-@app.post("/raise_query")
-async def raise_query(request_data: schemas.QueryData):
-    result = smv_db.save_query_data(request_data.dict())
-    if result == "Success":
-        return {"data": "Query raised successfully"}
-    else:
-        raise HTTPException(status_code=500, detail=result)
+@app.route('/raise_query', methods=['POST'])
+def raise_query():
+    user_login, user_logged_in = get_logged_in_user()
+    if not user_login:
+        return jsonify({'error': 'User not logged in'}), 401
+    request_data = request.get_json()
+    if not request_data:
+        return jsonify({'error': 'No data provided'}), 400
+    request_data['user_id'] = user_logged_in['user_id']
+    url = get_service_url() + '/raise_query'
+    response = post_api_function(url, request_data)
+    if response and response.status_code == 200:
+        return jsonify(response.json()), 200
+    return jsonify({'error': 'Failed to raise query'}), response.status_code if response else 500
 
-@app.get("/get_queries")
-async def get_queries():
-    data = smv_db.get_query_data()
-    if data:
-        return {"data": data}
-    else:
-        raise HTTPException(status_code=404, detail="No queries found")
+@app.route('/get_queries', methods=['GET'])
+def get_queries():
+    user_login, user_logged_in = get_logged_in_user()
+    if not user_login or user_logged_in['user_type'] != 'admin':
+        return jsonify({'error': 'Unauthorized access'}), 403
+    url = get_service_url() + '/get_queries'
+    response = get_api_function(url)
+    if response and response.status_code == 200:
+        return jsonify(response.json()), 200
+    return jsonify({'error': 'Failed to fetch queries'}), response.status_code if response else 500
 
-@app.post("/update_query_status/{query_id}")
-async def update_query_status(query_id: int, update_data: schemas.QueryStatusUpdate):
-    logger.info(f"Received request to update query {query_id} with status: {update_data.status}")
-    valid_statuses = ['pending', 'solved']
-    if update_data.status not in valid_statuses:
-        logger.error(f"Invalid status: {update_data.status}")
-        raise HTTPException(status_code=422, detail=f"Status must be one of {valid_statuses}")
-    try:
-        connection = smv_db.connection()
-        cursor = connection.cursor()
-        cursor.execute(
-            "UPDATE smaranvaidhya.query_data SET status = %s WHERE query_id = %s RETURNING query_id",
-            (update_data.status, query_id)
-        )
-        updated_query = cursor.fetchone()
-        connection.commit()
-        if not updated_query:
-            logger.error(f"Query ID {query_id} not found")
-            raise HTTPException(status_code=404, detail="Query not found")
-        logger.info(f"Query {query_id} status updated to {update_data.status}")
-        return {"data": "Query status updated successfully"}
-    except Exception as e:
-        logger.error(f"Error updating query {query_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+@app.route('/update_query_status/<int:query_id>', methods=['POST'])
+def update_query_status(query_id):
+    user_login, user_logged_in = get_logged_in_user()
+    if not user_login or user_logged_in['user_type'] != 'admin':
+        return jsonify({'error': 'Unauthorized access'}), 403
+    request_data = request.get_json()
+    if not request_data or 'status' not in request_data:
+        return jsonify({'error': 'Status not provided'}), 400
+    url = get_service_url() + f'/update_query_status/{query_id}'
+    response = post_api_function(url, {'status': request_data['status']})
+    if response and response.status_code == 200:
+        return jsonify(response.json()), 200
+    return jsonify({'error': 'Failed to update query status'}), response.status_code if response else 500
 
-@app.get("/get_doctor_profile")
-async def get_doctor_profile(email: str):
-    logger.info(f"Received request for doctor profile with email: {email}")
+@app.route('/get_doctor_profile', methods=['GET'])
+def proxy_get_doctor_profile():
+    email = request.args.get('email')
     if not email:
-        logger.error("Email parameter missing")
-        raise HTTPException(status_code=400, detail="Email parameter required")
-    try:
-        connection = smv_db.connection()
-        cursor = connection.cursor()
-        cursor.execute("""
-            SELECT id, first_name, last_name, date_of_birth, gender, email, phone_number,
-                    state, city, zip_code, clinic_hospital, specialist,
-                    available_from, available_to, time_per_patient, max_appointments,
-                    highest_qualification, years_of_experience, in_person_fee, video_fee,
-                    phone_fee, emergency_availability, emergency_contact,
-                    hospital_clinic_address, upi_id,
-                    monday, tuesday, wednesday, thursday, friday, saturday, sunday
-            FROM smaranvaidhya.doctor_information
-            WHERE email = %s
-        """, (email,))
-        doctor = cursor.fetchone()
-        if not doctor:
-            logger.error(f"No doctor found for email: {email}")
-            raise HTTPException(status_code=404, detail=f"No doctor profile found for email: {email}")
-        columns = ['id', 'first_name', 'last_name', 'date_of_birth', 'gender', 'email',
-                    'phone_number', 'state', 'city', 'zip_code', 'clinic_hospital',
-                    'specialist', 'available_from', 'available_to', 'time_per_patient',
-                    'max_appointments', 'highest_qualification', 'years_of_experience',
-                    'in_person_fee', 'video_fee', 'phone_fee', 'emergency_availability',
-                    'emergency_contact', 'hospital_clinic_address', 'upi_id',
-                    'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-        result = dict(zip(columns, doctor))
-        days = []
-        for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']:
-            if result[day] == '1':
-                days.append(day)
-        result['available_days'] = ','.join(days) if days else ''
-        result.pop('monday', None)
-        result.pop('tuesday', None)
-        result.pop('wednesday', None)
-        result.pop('thursday', None)
-        result.pop('friday', None)
-        result.pop('saturday', None)
-        result.pop('sunday', None)
-        logger.info(f"Fetched profile for doctor ID {result['id']} with email {email}")
-        return result
-    except Exception as e:
-        logger.error(f"Error fetching doctor profile for email {email}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        logger.error("Email parameter missing in get_doctor_profile request")
+        return {"detail": "Email parameter required"}, 400
 
-@app.put("/update_doctor_profile/{doctor_id}")
-async def update_doctor_profile(doctor_id: str, update_data: schemas.DoctorProfileUpdate):
     try:
-        connection = smv_db.connection()
-        cursor = connection.cursor()
-        days = update_data.available_days.split(',') if update_data.available_days else []
-        day_fields = {
-            'monday': '1' if 'monday' in days else '0',
-            'tuesday': '1' if 'tuesday' in days else '0',
-            'wednesday': '1' if 'wednesday' in days else '0',
-            'thursday': '1' if 'thursday' in days else '0',
-            'friday': '1' if 'friday' in days else '0',
-            'saturday': '1' if 'saturday' in days else '0',
-            'sunday': '1' if 'sunday' in days else '0'
-        }
-        cursor.execute("""
-            UPDATE smaranvaidhya.doctor_information
-            SET first_name = %s, last_name = %s, phone_number = %s, state = %s,
-                city = %s, zip_code = %s, clinic_hospital = %s, specialist = %s,
-                available_from = %s, available_to = %s, time_per_patient = %s,
-                max_appointments = %s, highest_qualification = %s, years_of_experience = %s,
-                in_person_fee = %s, video_fee = %s, phone_fee = %s,
-                emergency_availability = %s, emergency_contact = %s,
-                hospital_clinic_address = %s, upi_id = %s,
-                monday = %s, tuesday = %s, wednesday = %s, thursday = %s,
-                friday = %s, saturday = %s, sunday = %s
-            WHERE id = %s
-            RETURNING id
-        """, (
-            update_data.first_name, update_data.last_name, update_data.phone_number,
-            update_data.state, update_data.city, update_data.zip_code,
-            update_data.clinic_hospital, update_data.specialist,
-            update_data.available_from, update_data.available_to,
-            update_data.time_per_patient, update_data.max_appointments,
-            update_data.highest_qualification, update_data.years_of_experience,
-            update_data.in_person_fee, update_data.video_fee, update_data.phone_fee,
-            update_data.emergency_availability, update_data.emergency_contact,
-            update_data.hospital_clinic_address, update_data.upi_id,
-            day_fields['monday'], day_fields['tuesday'], day_fields['wednesday'],
-            day_fields['thursday'], day_fields['friday'], day_fields['saturday'],
-            day_fields['sunday'], doctor_id
-        ))
-        updated_doctor = cursor.fetchone()
-        connection.commit()
-        if not updated_doctor:
-            logger.error(f"Doctor ID {doctor_id} not found")
-            raise HTTPException(status_code=404, detail="Doctor not found")
-        logger.info(f"Updated profile for doctor ID {doctor_id}")
-        return {"data": "Doctor profile updated successfully"}
-    except Exception as e:
-        logger.error(f"Error updating doctor profile for ID {doctor_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+        response = requests.get(f'http://localhost:2000/get_doctor_profile?email={email}', timeout=5)
+        logger.info(f"FastAPI response - Status: {response.status_code}, Headers: {response.headers}, Body: {response.text}")
+        response.raise_for_status()
+        return response.json(), response.status_code
+    except requests.exceptions.ConnectionError as e:
+        logger.error(f"Failed to connect to FastAPI: {str(e)}")
+        return {"detail": "Backend server is unreachable. Please ensure FastAPI is running on port 2000."}, 503
+    except requests.exceptions.HTTPError as e:
+        logger.error(f"FastAPI returned an error: {str(e)}, Response: {response.text}")
+        return {"detail": f"Backend error: {response.text}"}, response.status_code
+    except requests.exceptions.JSONDecodeError as e:
+        logger.error(f"Invalid JSON from FastAPI: {str(e)}, Response: {response.text}")
+        return {"detail": f"Failed to parse backend response: {str(e)}"}, 500
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error proxying to FastAPI: {str(e)}")
+        return {"detail": f"Failed to connect to backend: {str(e)}"}, 500
 
-@app.get("/get_booked_slots")
-async def get_booked_slots(doctor_id: str = Query(...), date: str = Query(...)):
-    logger.debug(f"Fetching booked slots for doctor_id: {doctor_id}, date: {date}")
+@app.route('/update_doctor_profile/<doctor_id>', methods=['PUT'])
+def proxy_update_doctor_profile(doctor_id):
     try:
-        booked_slots = smv_db.get_booked_slots(doctor_id, date)
-        return JSONResponse(content={"booked_slots": booked_slots}, status_code=200)
-    except Exception as e:
-        logger.error(f"Error fetching booked slots for doctor_id {doctor_id} on date {date}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        response = requests.put(
+            f'http://localhost:2000/update_doctor_profile/{doctor_id}',
+            json=request.get_json(),
+            timeout=5
+        )
+        logger.info(f"FastAPI update response - Status: {response.status_code}, Headers: {response.headers}, Body: {response.text}")
+        response.raise_for_status()
+        return response.json(), response.status_code
+    except requests.exceptions.ConnectionError as e:
+        logger.error(f"Failed to connect to FastAPI for update: {str(e)}")
+        return {"detail": "Backend server is unreachable. Please ensure FastAPI is running on port 2000."}, 503
+    except requests.exceptions.HTTPError as e:
+        logger.error(f"FastAPI update returned an error: {str(e)}, Response: {response.text}")
+        return {"detail": f"Backend error: {response.text}"}, response.status_code
+    except requests.exceptions.JSONDecodeError as e:
+        logger.error(f"Invalid JSON from FastAPI update: {str(e)}, Response: {response.text}")
+        return {"detail": f"Failed to parse backend response: {str(e)}"}, 500
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error proxying to FastAPI for update: {str(e)}")
+        return {"detail": f"Failed to connect to backend: {str(e)}"}, 500
 
-@app.delete("/cancel_appointment/{appointment_id}")
-async def cancel_appointment(appointment_id: int):
-    logger.debug(f"Cancelling appointment ID: {appointment_id}")
-    try:
-        result = smv_db.cancel_appointment(appointment_id)
-        return JSONResponse(content={"data": "Appointment cancelled successfully"}, status_code=200)
-    except Exception as e:
-        logger.error(f"Error cancelling appointment: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+@app.route('/get_booked_slots', methods=['GET'])
+def get_booked_slots():
+    doctor_id = request.args.get('doctor_id')
+    date = request.args.get('date')
+    response = requests.get(f'{get_service_url()}/get_booked_slots?doctor_id={doctor_id}&date={date}')
+    return jsonify(response.json())
 
-@app.put("/reschedule_appointment/{appointment_id}")
-async def reschedule_appointment(appointment_id: int, data: schemas.RescheduleData):
-    logger.debug(f"Rescheduling appointment ID: {appointment_id} with data: {data.dict()}")
+@app.route('/cancel_appointment/<int:appointment_id>', methods=['DELETE'])
+def proxy_cancel_appointment(appointment_id):
     try:
-        result = smv_db.reschedule_appointment(appointment_id, data.date, data.slot, data.consultancytype, data.fees)
-        return JSONResponse(content={"data": "Appointment rescheduled successfully"}, status_code=200)
-    except Exception as e:
-        logger.error(f"Error rescheduling appointment: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        response = requests.delete(f'{get_service_url()}/cancel_appointment/{appointment_id}')
+        response.raise_for_status()
+        return jsonify(response.json()), response.status_code
+    except requests.RequestException as e:
+        return jsonify({'error': str(e)}), 500
 
-@app.post("/mark_appointment_visited/{appointment_id}")
-async def mark_appointment_visited(appointment_id: int, request: schemas.VisitedRequest):
+@app.route('/reschedule_appointment/<int:appointment_id>', methods=['PUT'])
+def proxy_reschedule_appointment(appointment_id):
     try:
-        logger.debug(f"Received request for /mark_appointment_visited/{appointment_id} with data: {request}")
-        success = smv_db.update_visited(appointment_id, request.visited)
-        if success:
-            logger.debug(f"Successfully updated visited status for appointment_id {appointment_id}")
-            return {"data": "Appointment visited status updated successfully"}
-        raise HTTPException(status_code=404, detail="Appointment not found")
+        request_data = request.get_json()
+        if not request_data:
+            logger.error("No JSON data received for reschedule")
+            return jsonify({'error': 'No data provided'}), 400
+        required_fields = ['date', 'slot', 'consultancytype', 'fees']
+        if not all(field in request_data for field in required_fields):
+            logger.error(f"Missing required fields: {request_data}")
+            return jsonify({'error': 'Missing required fields'}), 400
+        url = f'{get_service_url()}/reschedule_appointment/{appointment_id}'
+        response = requests.put(url, json=request_data)
+        response.raise_for_status()
+        return jsonify(response.json()), response.status_code
+    except requests.RequestException as e:
+        logger.error(f"Error proxying reschedule request: {str(e)}")
+        return jsonify({'error': str(e)}), 500
     except Exception as e:
-        logger.error(f"Error updating visited status for appointment_id {appointment_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to update visited status: {str(e)}")
+        logger.error(f"Unexpected error in reschedule: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
-@app.post("/update_prescription_text/{appointment_id}")
-def update_prescription_text(appointment_id: int, request: schemas.PrescriptionRequest):
+@app.route('/mark_appointment_visited/<int:appointment_id>', methods=['POST'])
+def proxy_mark_appointment_visited(appointment_id):
     try:
-        logger.debug(f"Received request for /update_prescription_text/{appointment_id} with data: {request}")
-        if not request.prescription.strip():
-            raise HTTPException(status_code=400, detail="Prescription text cannot be empty")
-        success = smv_db.update_prescription_text(appointment_id, request.prescription)
-        if success:
-            logger.debug(f"Successfully updated prescription for appointment_id {appointment_id}")
-            return {"data": "Prescription updated successfully"}
-        raise HTTPException(status_code=404, detail="Appointment not found")
-    except Exception as e:
-        logger.error(f"Error updating prescription for appointment_id {appointment_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to update prescription: {str(e)}")
+        request_data = request.get_json()
+        if not request_data or 'visited' not in request_data:
+            logger.error("Missing 'visited' field in request body")
+            return jsonify({'error': "Visited status not provided"}), 400
+        logger.debug(f"Forwarding to FastAPI: /mark_appointment_visited/{appointment_id} with data: {request_data}")
+        response = requests.post(
+            f'{get_service_url()}/mark_appointment_visited/{appointment_id}',
+            json=request_data
+        )
+        response.raise_for_status()
+        logger.debug(f"FastAPI response: {response.json()}")
+        return jsonify(response.json()), response.status_code
+    except requests.exceptions.HTTPError as e:
+        logger.error(f"FastAPI error: {str(e)}, Response: {e.response.text}")
+        try:
+            error_data = e.response.json()
+            return jsonify(error_data), e.response.status_code
+        except ValueError:
+            return jsonify({'error': str(e)}), e.response.status_code
+    except requests.RequestException as e:
+        logger.error(f"Error proxying to FastAPI: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/update_prescription_text/<int:appointment_id>', methods=['POST'])
+def proxy_update_prescription_text(appointment_id):
+    try:
+        request_data = request.get_json()
+        if not request_data or 'prescription' not in request_data:
+            logger.error("Missing 'prescription' field in request body")
+            return jsonify({'error': "Prescription text not provided"}), 400
+        logger.debug(f"Forwarding to FastAPI: /update_prescription_text/{appointment_id} with data: {request_data}")
+        response = requests.post(
+            f'{get_service_url()}/update_prescription_text/{appointment_id}',
+            json=request_data
+        )
+        response.raise_for_status()
+        logger.debug(f"FastAPI response: {response.json()}")
+        return jsonify(response.json()), response.status_code
+    except requests.exceptions.HTTPError as e:
+        logger.error(f"FastAPI error: {str(e)}, Response: {e.response.text}")
+        try:
+            error_data = e.response.json()
+            return jsonify(error_data), e.response.status_code
+        except ValueError:
+            return jsonify({'error': str(e)}), e.response.status_code
+    except requests.RequestException as e:
+        logger.error(f"Error proxying to FastAPI: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()  # Create database tables if they don't exist
+    app.run(debug=True, port=7078)
