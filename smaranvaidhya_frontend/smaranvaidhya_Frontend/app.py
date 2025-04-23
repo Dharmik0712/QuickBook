@@ -206,6 +206,7 @@ def get_api_function(url):
 
 # def get_service_url():
 #     return 'http://127.0.0.1:2000'
+
 def get_service_url():
     return 'https://healthcare-fastapi.onrender.com'
 
@@ -572,4 +573,4 @@ def proxy_update_prescription_text(appointment_id):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Create database tables if they don't exist
-    app.run(debug=True, port=7078)
+    # app.run(debug=True, port=7078)
