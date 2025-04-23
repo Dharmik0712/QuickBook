@@ -208,7 +208,7 @@ def get_api_function(url):
 #     return 'http://127.0.0.1:2000'
 
 def get_service_url():
-    return 'https://healthcare-fastapi.onrender.com'
+    return 'https://quickbook-bk.onrender.com'
 
 @app.route('/attempt_to_login_for_user', methods=['POST'])
 def attempt_to_login_for_user():
