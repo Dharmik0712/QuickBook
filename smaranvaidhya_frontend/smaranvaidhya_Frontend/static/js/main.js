@@ -888,43 +888,6 @@ function savePrescription(appointmentId) {
         }
     });
 }
-// function updatePrescriptionText(appointmentId, prescription) {
-//     console.log("DEBUG: Prescription text value:", prescription, typeof prescription);
-//     const prescriptionRequest = {
-//         prescription: prescription
-//     };
-//     console.log("DEBUG: Saving prescription text:", { appointmentId, prescriptionRequest });
-//     $.ajax({
-//         url: `/update_prescription_text/${appointmentId}`,
-//         type: 'POST',
-//         contentType: 'application/json',
-//         data: JSON.stringify(prescriptionRequest),
-//         success: function(response) {
-//             console.log("DEBUG: Update prescription text response:", response);
-//             if (response.data === "Prescription updated successfully") {
-//                 console.log("DEBUG: Prescription update successful, refreshing table");
-//                 alert("Visited status and prescription updated successfully");
-//                 $("#prescriptionModal").modal('hide');
-//                 get_doctor_view_data();
-//             } else {
-//                 console.error("ERROR: Unexpected prescription response:", response);
-//                 alert("Failed to update prescription: " + (response.data || response.error || "Unknown error"));
-//             }
-//         },
-//         error: function(jqXhr, textStatus, errorMsg) {
-//             console.error("ERROR: Updating prescription text:", textStatus, errorMsg, jqXhr.responseJSON);
-//             let errorDetail = jqXhr.responseJSON?.detail || jqXhr.responseJSON?.error || errorMsg || "Unknown error";
-//             if (jqXhr.status === 400) {
-//                 errorDetail = jqXhr.responseJSON?.detail || "Invalid prescription text. Please try again.";
-//             } else if (jqXhr.status === 404) {
-//                 errorDetail = "Appointment not found.";
-//             } else if (jqXhr.status === 500) {
-//                 errorDetail = jqXhr.responseJSON?.detail || "Server error. Please try again later.";
-//             }
-//             alert("Failed to update prescription: " + errorDetail);
-//         }
-//     });
-// }
 
 function openPrescriptionModal(appointmentId, currentPrescription, visited) {
     // Remove existing modal to prevent duplicates
