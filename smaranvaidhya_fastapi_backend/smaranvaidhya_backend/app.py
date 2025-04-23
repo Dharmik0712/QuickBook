@@ -8,7 +8,8 @@ import logging
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.responses import JSONResponse, FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
-import smaranvaidhya_db as smv_db
+# import smaranvaidhya_db as smv_db
+from smaranvaidhya_fastapi_backend.smaranvaidhya_backend import smaranvaidhya_db as smv_db
 import schemas
 import base64
 import io
