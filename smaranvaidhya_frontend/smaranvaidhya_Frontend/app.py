@@ -439,7 +439,7 @@ def proxy_get_doctor_profile():
         return {"detail": "Email parameter required"}, 400
 
     try:
-        response = requests.get(f'http://localhost:2000/get_doctor_profile?email={email}', timeout=5)
+        response = requests.get(f'https://quickbook-bk.onrender.com/get_doctor_profile?email={email}', timeout=5)
         logger.info(f"FastAPI response - Status: {response.status_code}, Headers: {response.headers}, Body: {response.text}")
         response.raise_for_status()
         return response.json(), response.status_code
@@ -460,7 +460,7 @@ def proxy_get_doctor_profile():
 def proxy_update_doctor_profile(doctor_id):
     try:
         response = requests.put(
-            f'http://localhost:2000/update_doctor_profile/{doctor_id}',
+            f'https://quickbook-bk.onrender.com/update_doctor_profile/{doctor_id}',
             json=request.get_json(),
             timeout=5
         )
