@@ -177,7 +177,7 @@ def doctorProfile():
     print("Session email:", session.get('email'))
     if 'email' not in session:
         return redirect('/login')
-    return render_template('DoctorProfile.html')
+    return render_template('doctorProfile.html')
 
 @app.route('/logout')
 @login_required
