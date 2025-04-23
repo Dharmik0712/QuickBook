@@ -7,3 +7,6 @@ requests==2.31.0
 flask-cors
 flask-login
 Flask-SQLAlchemy
+fastapi
+gunicorn
+uvicorn[standard]
