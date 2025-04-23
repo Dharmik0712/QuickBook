@@ -1071,13 +1071,18 @@ function populate_user_history(data) {
     }
     data.forEach(function(item) {
         // Safe defaults for missing fields
+        const parsedDate = item.date_of_appointment
+            ? moment(item.date_of_appointment, "DD-MMM-YYYY").isValid()
+                ? moment(item.date_of_appointment, "DD-MMM-YYYY").format("DD/MM/YYYY")
+                : 'Invalid Date'
+            : 'N/A';
         const safeItem = {
             appointment_id: item.appointment_id || 'N/A',
             doctor_id: item.doctor_id || 'N/A',
             patient_name: item.patient_name || 'Unknown',
             gender: item.gender || 'N/A',
             age: item.age || 'N/A',
-            date_of_appointment: item.date_of_appointment ? moment(item.date_of_appointment, "YYYY-MM-DD").format("DD/MM/YYYY") : 'N/A',
+            date_of_appointment: parsedDate,
             slot_of_appointment: item.slot_of_appointment || 'N/A',
             mode_of_payment: item.mode_of_payment || 'N/A',
             contact_number: item.contact_number || 'N/A',
