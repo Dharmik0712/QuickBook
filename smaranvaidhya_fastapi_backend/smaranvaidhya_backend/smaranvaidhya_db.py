@@ -9,7 +9,7 @@ from datetime import datetime
 #         )
 #         return conn
 def connection():
-        conn = psycopg2.connect("postgresql://healthcare_user:N7dbWVRIzMBQwliulBiZ5wykBDzmxVd5@dpg-d02jpd3e5dus73bsfvq0-a.frankfurt-postgres.render.com/healthcare_t5xz")
+        conn = psycopg2.connect("postgresql://healthcare_user:6hjcyNZJuJ9rLuh0u68G2vbsZgXRlMjR@dpg-d17dj415pdvs7388mi5g-a.frankfurt-postgres.render.com/healthcare_db_rfsa")
         return conn
 
 def get_latest_appointment_id(patient_id):
