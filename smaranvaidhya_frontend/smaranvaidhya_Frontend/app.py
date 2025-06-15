@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://healthcare_user:N7dbWVRIzMBQwliulBiZ5wykBDzmxVd5@dpg-d02jpd3e5dus73bsfvq0-a.frankfurt-postgres.render.com/healthcare_t5xz'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://healthcare_user:6hjcyNZJuJ9rLuh0u68G2vbsZgXRlMjR@dpg-d17dj415pdvs7388mi5g-a.frankfurt-postgres.render.com/healthcare_db_rfsa'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.secret_key = 'This_is_very_secret'
 # app = Flask(__name__)
